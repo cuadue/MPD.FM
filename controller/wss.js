@@ -116,6 +116,9 @@ module.exports = {
                             }
                         });
                         break;
+
+                    case "VOLUME":
+                        mpdClient.volume(msg.data, function () {});
                 }
 
             });

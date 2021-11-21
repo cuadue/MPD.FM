@@ -107,6 +107,17 @@ function sendPlayStation(stream, callback) {
     });
 }
 
+function sendVolume(command, callback) {
+    sendCommands([cmd("volume", [command])],
+        function(err, msg) {
+            if (err) {
+                callback(err);
+            } else {
+                callback();
+            }
+        });
+}
+
 function sendElapsedRequest(callback) {
     sendCommands(cmd("status", []), 
         function(err, msg) {
@@ -174,5 +185,10 @@ var self = module.exports = {
     playStation: function playStation(stream, callback) {
         debug('play ' + stream);
         sendPlayStation(stream, callback);
+    },
+
+    volume: function playStation(command, callback) {
+        debug('volume ' + command);
+        sendVolume(command, callback);
     },
 };

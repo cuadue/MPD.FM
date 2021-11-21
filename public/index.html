@@ -68,7 +68,7 @@
 
             <div class="player">
                 <div class="pure-g player-content">
-                        <div class="pure-u-1-4 l-box" v-on:click="onPlayButton">
+                        <div class="pure-u-1-5 l-box" v-on:click="onPlayButton">
                             <div class="station-logo">
 
                                 <img class="pure-img active-station" v-bind:src="!currentStation ? 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' : currentStation.logo" v-bind:alt="!currentStation ? '' : currentStation.station">
@@ -84,12 +84,22 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="pure-u-3-4 l-box station-text">
+                        <div class="pure-u-3-5 l-box station-text">
                             <div class="station-text-inside">
                                 <p class="station-heading">{{ elapsed }}</p>
                                 <p>{{ song }}</p>
                             </div>
                         </div>
+			<div class="pure-u-1-5 pure-g volume-controls">
+                            <div class="pure-u-1-1 l-box"
+			    	v-on:click="bumpVolume('+25')">
+			    	Up
+                            </div>
+                            <div class="pure-u-1-1 l-box"
+			    	v-on:click="bumpVolume('-25')">
+			    	Down
+                            </div>
+			</div>
                 </div>
             </div>
             

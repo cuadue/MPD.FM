@@ -111,6 +111,10 @@ var app = new Vue({
             }
         },
 
+        bumpVolume: function(cmd) {
+            this.sendWSSMessage('VOLUME', cmd);
+        },
+
         onPlayStation: function(stream) {
             var self = this;
             self.status = 'loading';
