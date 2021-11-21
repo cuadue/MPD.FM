@@ -27,6 +27,7 @@ var app = new Vue({
         song: DefaultSongText,
         currentStation: null,
         currentFile: null,
+        currentVolume: null,
         errorState: {
             wssDisconnect: true,
             mpdServerDisconnect: true 
@@ -63,6 +64,7 @@ var app = new Vue({
                         timer.lastDisplayTimestamp = 0;
                         self.setPlayState(msg.data.state);
                         self.setCurrentStation(msg.data.file);
+                        self.setCurrentVolume(msg.data.volume);
                         self.setSongName(msg.data.title, msg.data.album, msg.data.artist);
                         self.setElapsedTime(msg.data.elapsed);
                         break;
@@ -210,6 +212,10 @@ var app = new Vue({
                 self.song = DefaultSongText;
                 self.currentStation = null;
             }
+        },
+
+        setCurrentVolume: function(volume) {
+            this.currentVolume = volume;
         },
 
         setSongName: function(title, album, artist) {

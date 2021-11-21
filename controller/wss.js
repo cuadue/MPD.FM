@@ -118,7 +118,14 @@ module.exports = {
                         break;
 
                     case "VOLUME":
-                        mpdClient.volume(msg.data, function () {});
+                        mpdClient.volume(msg.data, function (err, status) {
+                            if(err) {
+                                sendWSSMessage(ws, 'MPD_OFFLINE', null);
+                            } else {
+                                sendWSSMessage(ws, 'STATUS', status);
+                            }
+                        });
+                        break;
                 }
 
             });
