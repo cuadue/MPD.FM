@@ -1,27 +1,57 @@
 [
     {   "id": 0, 
-        "station": "ByteFM",
-        "desc": "ByteFM ist moderiertes Musikprogramm, fernab vom Mainstream",
-        "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/ByteFM.svg/1200px-ByteFM.svg.png",
-        "stream": "https://bytefm.sslcast.addradio.de/bytefm/main/high/stream.mp3"
+        "station": "KFJC",
+        "desc": "Foothill College",
+        "logo": "https://upload.wikimedia.org/wikipedia/en/c/cc/Kfjc_triangle.png",
+        "stream": "http://netcast.kfjc.org/kfjc-192k-aac"
     },
     {   "id": 1, 
-        "station": "Berlin Community Radio",
-        "desc": "BCR is a broadcasting platform presenting everything that is influencing Berlin",
-        "logo": "http://www.berlincommunityradio.com/sites/all/themes/bcr_bootstrap/images/logospot.png",
-        "stream": "http://berlincommunityradio.out.airtime.pro:8000/berlincommunityradio_a"
+        "station": "KDFC",
+        "desc": "San Francisco Classical",
+        "logo": "https://upload.wikimedia.org/wikipedia/en/5/53/KDFCFM.jpg",
+        "stream": "http://18703.live.streamtheworld.com:80/KDFCFMAAC_SC"
+    },
+    {   "id": 10, 
+        "station": "WFMT",
+        "desc": "Chicago Classical",
+        "logo": "https://www.wfmt.com/wp-content/uploads/2017/08/wfmt-logo.png",
+        "stream": "http://wfmt.streamguys1.com/main-mp3"
+    },
+    {   "id": 4, 
+        "station": "Radio88",
+        "desc": "Rádió 88 Szeged",
+        "logo": "https://www.radio88.hu/wp-content/themes/radio88/img/logo.svg",
+        "stream": "http://stream.radio88.hu:8000/"
+    },
+    {   "id": 3, 
+        "station": "KCSM",
+        "desc": "Jazz 91 College of San Mateo",
+        "logo": "https://upload.wikimedia.org/wikipedia/en/3/33/KCSMTV.jpg",
+        "stream": "http://ice5.securenetsystems.net/KCSM"
+    },
+    {   "id": 4,
+        "station": "KPSU",
+        "desc": "Portland State University",
+        "logo": "https://i0.wp.com/kpsu.org/wp-content/uploads/2018/12/KPSU_LOGO_resized.jpg",
+        "stream": "https://streamer.radio.co/scad0cc067/listen"
+    },
+    {   "id": 4,
+        "station": "KXSU",
+        "desc": "Seattle University",
+        "logo": "https://dehayf5mhw1h7.cloudfront.net/wp-content/uploads/sites/924/2017/12/07143013/final-logo.png",
+        "stream": "http://c556.fast-serv.com:80/kxsu"
     },
     {   "id": 2, 
         "station": "KCRW",
-        "desc": "KCRW is driven by the spirit of Los Angeles",
+        "desc": "Santa Monica College",
         "logo": "https://upload.wikimedia.org/wikipedia/en/thumb/8/83/KCRW_89.9FM_logo.svg/1034px-KCRW_89.9FM_logo.svg.png",
         "stream": "http://kcrw.streamguys1.com/kcrw_192k_mp3_on_air_internet_radio"
     },
-    {   "id": 3, 
-        "station": "CKUT",
-        "desc": "CKUT is a non-profit, campus-community radio station based at McGill University",
-        "logo": "http://music.ckut.ca/wp-content/uploads/2012/01/ckut_logo-1024x625.jpg",
-        "stream": "http://stream.ckut.ca:8000/903fm-192-stereo"
+    {   "id": 2, 
+        "station": "CBC Music (Pacific)",
+        "desc": "",
+        "logo": "",
+	"stream": "https://cbcliveradio2-lh.akamaihd.net/i/CBCR2_VCR@353638/master.m3u8 "
     }
 ]
 
