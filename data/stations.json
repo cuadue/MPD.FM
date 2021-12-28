@@ -11,47 +11,41 @@
         "logo": "https://upload.wikimedia.org/wikipedia/en/5/53/KDFCFM.jpg",
         "stream": "http://18703.live.streamtheworld.com:80/KDFCFMAAC_SC"
     },
-    {   "id": 10, 
+    {   "id": 2,
         "station": "WFMT",
         "desc": "Chicago Classical",
         "logo": "https://www.wfmt.com/wp-content/uploads/2017/08/wfmt-logo.png",
         "stream": "http://wfmt.streamguys1.com/main-mp3"
     },
-    {   "id": 4, 
+    {   "id": 3, 
         "station": "Radio88",
         "desc": "Rádió 88 Szeged",
         "logo": "https://www.radio88.hu/wp-content/themes/radio88/img/logo.svg",
         "stream": "http://stream.radio88.hu:8000/"
     },
-    {   "id": 3, 
+    {   "id": 4, 
         "station": "KCSM",
         "desc": "Jazz 91 College of San Mateo",
         "logo": "https://upload.wikimedia.org/wikipedia/en/3/33/KCSMTV.jpg",
         "stream": "http://ice5.securenetsystems.net/KCSM"
     },
-    {   "id": 4,
+    {   "id": 5,
         "station": "KPSU",
         "desc": "Portland State University",
         "logo": "https://i0.wp.com/kpsu.org/wp-content/uploads/2018/12/KPSU_LOGO_resized.jpg",
         "stream": "https://streamer.radio.co/scad0cc067/listen"
     },
-    {   "id": 4,
+    {   "id": 6,
         "station": "KXSU",
         "desc": "Seattle University",
         "logo": "https://dehayf5mhw1h7.cloudfront.net/wp-content/uploads/sites/924/2017/12/07143013/final-logo.png",
         "stream": "http://c556.fast-serv.com:80/kxsu"
     },
-    {   "id": 2, 
-        "station": "KCRW",
-        "desc": "Santa Monica College",
-        "logo": "https://upload.wikimedia.org/wikipedia/en/thumb/8/83/KCRW_89.9FM_logo.svg/1034px-KCRW_89.9FM_logo.svg.png",
-        "stream": "http://kcrw.streamguys1.com/kcrw_192k_mp3_on_air_internet_radio"
-    },
-    {   "id": 2, 
-        "station": "CBC Music (Pacific)",
-        "desc": "",
-        "logo": "",
-	"stream": "https://cbcliveradio2-lh.akamaihd.net/i/CBCR2_VCR@353638/master.m3u8 "
+    {   "id": 6,
+        "station": "KFFP",
+        "desc": "Freeform Portland",
+        "logo": "https://www.freeformportland.org/wp-content/themes/graphy-pro/images/freeform-portland.svg",
+        "stream": "http://listen.freeformportland.org:8000/stream"
     }
 ]
 
