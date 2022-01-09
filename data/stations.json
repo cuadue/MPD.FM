@@ -41,11 +41,18 @@
         "logo": "https://dehayf5mhw1h7.cloudfront.net/wp-content/uploads/sites/924/2017/12/07143013/final-logo.png",
         "stream": "http://c556.fast-serv.com:80/kxsu"
     },
-    {   "id": 6,
+    {   "id": 7,
         "station": "KFFP",
         "desc": "Freeform Portland",
         "logo": "https://www.freeformportland.org/wp-content/themes/graphy-pro/images/freeform-portland.svg",
         "stream": "http://listen.freeformportland.org:8000/stream"
+    },
+    {
+        "id": 8,
+        "station": "KBOO",
+        "desc": "Community Radio Portland",
+        "logo": "https://kboo.fm/sites/all/themes/custom/kbooui/logo.png",
+        "stream": "https://live.kboo.fm:8443/high"
     }
 ]
 
