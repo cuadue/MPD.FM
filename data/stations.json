@@ -1,4 +1,16 @@
 [
+    {   "id": 3,
+        "station": "Radio88",
+        "desc": "Rádió 88 Szeged",
+        "logo": "https://www.radio88.hu/wp-content/themes/radio88/img/logo.svg",
+        "stream": "http://stream.radio88.hu:8000/"
+    },
+    {   "id": 7,
+        "station": "KFFP",
+        "desc": "Freeform Portland",
+        "logo": "https://www.freeformportland.org/wp-content/themes/graphy-pro/images/freeform-portland.svg",
+        "stream": "http://listen.freeformportland.org:8000/stream"
+    },
     {   "id": 0, 
         "station": "KFJC",
         "desc": "Foothill College",
@@ -17,18 +29,6 @@
         "logo": "https://www.wfmt.com/wp-content/uploads/2017/08/wfmt-logo.png",
         "stream": "http://wfmt.streamguys1.com/main-mp3"
     },
-    {   "id": 3, 
-        "station": "Radio88",
-        "desc": "Rádió 88 Szeged",
-        "logo": "https://www.radio88.hu/wp-content/themes/radio88/img/logo.svg",
-        "stream": "http://stream.radio88.hu:8000/"
-    },
-    {   "id": 4, 
-        "station": "KCSM",
-        "desc": "Jazz 91 College of San Mateo",
-        "logo": "https://upload.wikimedia.org/wikipedia/en/3/33/KCSMTV.jpg",
-        "stream": "http://ice5.securenetsystems.net/KCSM"
-    },
     {   "id": 5,
         "station": "KPSU",
         "desc": "Portland State University",
@@ -41,18 +41,19 @@
         "logo": "https://dehayf5mhw1h7.cloudfront.net/wp-content/uploads/sites/924/2017/12/07143013/final-logo.png",
         "stream": "http://c556.fast-serv.com:80/kxsu"
     },
-    {   "id": 7,
-        "station": "KFFP",
-        "desc": "Freeform Portland",
-        "logo": "https://www.freeformportland.org/wp-content/themes/graphy-pro/images/freeform-portland.svg",
-        "stream": "http://listen.freeformportland.org:8000/stream"
-    },
     {
         "id": 8,
         "station": "KBOO",
         "desc": "Community Radio Portland",
         "logo": "https://kboo.fm/sites/all/themes/custom/kbooui/logo.png",
         "stream": "https://live.kboo.fm:8443/high"
+    },
+    {
+        "id": 9,
+        "station": "KMHD",
+        "desc": "Portland Jazz Radio",
+        "logo": "https://upload.wikimedia.org/wikipedia/commons/4/40/KMHDwikipedia.jpg",
+        "stream": "https://ais-sa3.cdnstream1.com/2442_128.aac"
     }
 ]
 
