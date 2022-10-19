@@ -179,14 +179,17 @@ html, button, input, select, textarea,
 .volume-controls .l-box {
     cursor: pointer;
     transform: scale(1, 1);
+    background: black;
 }
 
 .volume-controls .l-box:hover {
     filter: invert(1);
 }
 
-.volume-controls .l-box:focus {
+.volume-controls .l-box:focus, {
+.volume-controls .l-box:focus:active {
     animation: pulse 1s ease-in-out;
+    animation-iteration-count: 1;
 }
 
 .volume-controls .l-box:active {

@@ -14,7 +14,7 @@
     {   "id": 0, 
         "station": "KFJC",
         "desc": "Foothill College",
-        "logo": "https://upload.wikimedia.org/wikipedia/en/c/cc/Kfjc_triangle.png",
+        "logo": "https://kfjc.org/static/images/logos/classic.color.gifs/classic.color.600x470.gif",
         "stream": "http://netcast.kfjc.org/kfjc-192k-aac"
     },
     {   "id": 1, 
@@ -22,6 +22,19 @@
         "desc": "San Francisco Classical",
         "logo": "https://upload.wikimedia.org/wikipedia/en/5/53/KDFCFM.jpg",
         "stream": "http://18703.live.streamtheworld.com:80/KDFCFMAAC_SC"
+    },
+    {
+        "id": 9,
+        "station": "KMHD",
+        "desc": "Portland Jazz Radio",
+        "logo": "https://upload.wikimedia.org/wikipedia/commons/4/40/KMHDwikipedia.jpg",
+        "stream": "https://ais-sa3.cdnstream1.com/2442_128.aac"
+    },
+    {   "id": 4,
+        "station": "KCSM",
+        "desc": "Jazz 91 College of San Mateo",
+        "logo": "https://upload.wikimedia.org/wikipedia/en/3/33/KCSMTV.jpg",
+        "stream": "http://ice5.securenetsystems.net/KCSM"
     },
     {   "id": 2,
         "station": "WFMT",
@@ -47,13 +60,6 @@
         "desc": "Community Radio Portland",
         "logo": "https://kboo.fm/sites/all/themes/custom/kbooui/logo.png",
         "stream": "https://live.kboo.fm:8443/high"
-    },
-    {
-        "id": 9,
-        "station": "KMHD",
-        "desc": "Portland Jazz Radio",
-        "logo": "https://upload.wikimedia.org/wikipedia/commons/4/40/KMHDwikipedia.jpg",
-        "stream": "https://ais-sa3.cdnstream1.com/2442_128.aac"
     }
 ]
 
