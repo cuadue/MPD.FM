@@ -5,6 +5,13 @@
         "logo": "https://www.radio88.hu/wp-content/themes/radio88/img/logo.svg",
         "stream": "http://stream.radio88.hu:8000/"
     },
+    {   "id": 10,
+        "station": "XRAY",
+        "desc": "XRAY.FM",
+        "logo": "https://xray.fm/theme/107/img/logo1_white-on-black_399.png",
+        "stream": "https://listen.xray.fm/stream"
+    },
+
     {   "id": 7,
         "station": "KFFP",
         "desc": "Freeform Portland",
