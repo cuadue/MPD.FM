@@ -1,0 +1,53 @@
+union State = LoadingState | StoppedState | StartingState | PlayingState | PausedState | ErrorState
+
+type LoadingState
+type StoppedState
+
+type StartingState {
+  station: Station!
+  startedAt: String!
+}
+
+type PlayingState {
+  station: Station!
+  title: String
+  startedAt: String!
+}
+
+type Station {
+  id: ID!
+  name: String!
+  description: String
+  logoUrl: String!
+}
+
+type PausedState {
+  station: Station!
+}
+
+type ErrorState {
+  message: String
+}
+
+type Query {
+  state: State
+  stations: [Station!]
+}
+
+type AddStationInput {
+  name: String!
+  description: String
+  logoUrl: String!
+  streamUrl: String!
+}
+
+type Mutation {
+  play(stationId: ID!): State!
+  pause: State!
+  resume: State!
+  addStation(input: AddStationInput!): Station
+}
+
+type Subscription {
+  stateChanged: State
+}

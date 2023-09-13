@@ -1,6 +1,8 @@
 # MPD.FM
 A MPD web server and client to listen to your favorite online radio stations. It's great for a Raspberry Pi home audio system.
 
+Forked from <https://github.com/florianheinemann/MPD.FM>
+
 ## Features
 - Allows quick switching between your favorite radio stations
 - Simple and nicely designed
