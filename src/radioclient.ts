@@ -1,18 +1,18 @@
 import {MpdClient, ConnectOptions, KeyValuePairs, parseKeyValueMessage} from '@cuadue/mpd';
+import { parse } from 'graphql';
 import {TypedEmitter} from 'tiny-typed-emitter';
 
 var debug = require('debug')('mpd.fm:mpdclient');
 
-type State = 'disconnected' | 'connecting' | 'reconnecting' | 'ready';
+export type RadioState = 'connecting' | 'stopped' | 'playing' | 'error';
 
 interface RadioClientEvents {
-    readyState: (state: State) => void
-    radioState: (state: KeyValuePairs) => void
+    state: (kind: RadioState, data: KeyValuePairs) => void
 }
 
 export class RadioClient extends TypedEmitter<RadioClientEvents> {
     mpdClient: MpdClient = new MpdClient;
-    state: State = 'disconnected';
+    state: RadioState = 'connecting';
     connectOptions?: ConnectOptions
 
     constructor(options?: ConnectOptions) {
@@ -20,60 +20,64 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         this.connectOptions = options;
     }
 
-    connect() {
+    async connect() {
         debug('Connecting');
-        this.mpdClient.connect(this.connectOptions);
-        this.mpdClient.on('end', () => this.onEnd());
-        this.mpdClient.on('error', (err) => this.onError(err));
-        this.mpdClient.on('ready', () => this.onReady());
-    }
+        this.setState('connecting');
+        this.mpdClient.on('state', (state) => {
+        });
 
-    onReady() {
-        this.setReadyState('ready');
-        this.mpdClient.on('system', async (name: String) => {
+        this.mpdClient.on('ready', () => {
+            this.setState('stopped');
+        });
+
+        this.mpdClient.on('system', async (name: string) => {
             debug('System update received: ' + name);
-            if(name === "playlist" || name === "player") {
-                const lastState = this.state;
-                try {
-                    const status = await this.mpdClient.getStatus();
-                    this.emit('radioState', status);
-                } catch {
-                    this.retryConnect();
-                }
+            if (['playlist', 'player', 'mixer'].indexOf(name) >= 0) {
+                const status = await this.mpdClient.getStatus();
+                //this.emit('state', status);
             }
         });
+
+        await this.mpdClient.connect(this.connectOptions);
     }
 
-    onEnd() {
-        debug('Connection ended');
-        this.setReadyState('disconnected');
-   }
+    private onEnd() {
+        this.setState('connecting');
+    }
 
-    onError(err: Error) {
+    private onError(err: Error) {
         console.error('MPD client socket error: ' + err);
     }
 
-    retryConnect() {
-        if (this.setReadyState('reconnecting')) {
+    private retryConnect() {
+        if (this.setState('connecting')) {
             setTimeout(() => {
                 this.connect();
             }, 3000);
         }
     }
 
+    getState() {
+        return this.state;
+    }
+
     // Returns true if the state changed
-    private setReadyState(newState: State): boolean {
+    private setState(newState: RadioState): boolean {
         const changed = newState !== this.state
         if (changed) {
             this.state = newState;
-            this.emit('readyState', this.state);
+            //this.emit('state', this.state);
         }
         return changed;
     }
 
-    async sendStatusRequest() {
+    async getPlayingState() {
         const data = await this.mpdClient.sendCommands(["currentsong", "status"]);
         return parseKeyValueMessage(data);
+    }
+
+    getReadyState() {
+        return this.state;
     }
 
     async sendPlayStation(stream: string) {
@@ -83,19 +87,12 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
             ["add", stream],
             "play",
         ]);
-        return this.sendStatusRequest();
     }
 
     async sendVolume(volume: number) {
         const data = await this.mpdClient.sendCommands([
             ["volume", volume.toString()],
         ]);
-        return this.sendStatusRequest();
-    }
-
-    async sendElapsedRequest() {
-        const data = await this.sendStatusRequest();
-        return data.elapsed;
     }
 
     async sendPlay() {
@@ -104,5 +101,15 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
 
     async sendPause() {
         return this.mpdClient.sendCommand(['pause', '1']);
+    }
+
+    async nowPlayingUrl() {
+        const msg = await this.mpdClient.sendCommand("currentsong");
+        const data = parseKeyValueMessage(msg);
+        return data.file;
+    }
+
+    nowPlayingTitle() {
+        return 'foo';
     }
 };

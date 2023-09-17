@@ -1,53 +1,44 @@
-union State = LoadingState | StoppedState | StartingState | PlayingState | PausedState | ErrorState
-
-type LoadingState
-type StoppedState
-
-type StartingState {
-  station: Station!
-  startedAt: String!
-}
-
-type PlayingState {
-  station: Station!
-  title: String
-  startedAt: String!
+enum State {
+  CONNECTING
+  STOPPED 
+  PLAYING
+  ERROR
 }
 
 type Station {
   id: ID!
-  name: String!
+  streamUrl: String!
+  name: String
   description: String
-  logoUrl: String!
+  logoUrl: String
 }
 
-type PausedState {
-  station: Station!
-}
-
-type ErrorState {
-  message: String
+type NowPlaying {
+  station: Station
+  title: String
 }
 
 type Query {
   state: State
+  nowPlaying: NowPlaying
+  errorMessage: String
   stations: [Station!]
 }
 
-type AddStationInput {
-  name: String!
-  description: String
-  logoUrl: String!
-  streamUrl: String!
-}
+# type AddStationInput {
+#   name: String!
+#   description: String
+#   logoUrl: String!
+#   streamUrl: String!
+# }
 
-type Mutation {
-  play(stationId: ID!): State!
-  pause: State!
-  resume: State!
-  addStation(input: AddStationInput!): Station
-}
-
-type Subscription {
-  stateChanged: State
-}
+# type Mutation {
+#   play(stationId: ID!): State!
+#   pause: State!
+#   resume: State!
+#   addStation(input: AddStationInput!): Station
+# }
+# 
+# type Subscription {
+#   statusChanged: Status
+# }

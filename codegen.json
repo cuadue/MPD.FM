@@ -2,7 +2,7 @@
   "overwrite": true,
   "schema": "./schema.graphql",
   "generates": {
-    "src/generated/schema.ts": {
+    "./src/generated/schema.ts": {
       "plugins": [
         "typescript",
         "typescript-resolvers"
@@ -10,6 +10,9 @@
     }
   },
   "config": {
-    "contextType": "../resolvers#ResolverContext"
+    "contextType": "../resolvers#ResolverContext",
+    "mappers": {
+      "Station": "../stationlist#StationEntity"
+    }
   }
 }
