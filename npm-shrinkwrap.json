@@ -10,7 +10,7 @@
       "license": "MIT",
       "dependencies": {
         "@apollo/server": "^4.6.0",
-        "@cuadue/mpd": "^2.0.2",
+        "@cuadue/mpd": "^2.0.3",
         "body-parser": "^1.20.2",
         "cors": "^2.8.5",
         "express": "~4.15.5",
@@ -1597,9 +1597,9 @@
       }
     },
     "node_modules/@cuadue/mpd": {
-      "version": "2.0.2",
-      "resolved": "https://registry.npmjs.org/@cuadue/mpd/-/mpd-2.0.2.tgz",
-      "integrity": "sha512-iknCOXLZBbG5l5v38fWY90QVLZd+aO4Nif5VBPN4JaBgLBkEDPOZMZqwohNtnXeKQ1grzGA2CZG+JypXGdldxw==",
+      "version": "2.0.3",
+      "resolved": "https://registry.npmjs.org/@cuadue/mpd/-/mpd-2.0.3.tgz",
+      "integrity": "sha512-YeosrdQk15PgJ1xKIfQeo8fYgsv8KUvGGIVbtZ6Jr8+1jFI8skYOsHG0diJ4vYNmEtUJT/ImSIHKZrRJd7MhWg==",
       "dependencies": {
         "tiny-typed-emitter": "^2.1.0"
       },

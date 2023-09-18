@@ -8,8 +8,10 @@ import { PubSub } from 'graphql-subscriptions';
 export interface ResolverContext {
   radioClient: RadioClient;
   stationList: StationList;
-  pubSub: PubSub;
 }
+
+const statusChangedTopic = 'STATUS_CHANGED';
+export const pubSub = new PubSub();
 
 const getState = (radioClient: RadioClient): State => {
     switch (radioClient.getState()) {
@@ -36,17 +38,20 @@ const getStatus = async (radioClient: RadioClient, stationList: StationList): Pr
 
 export const statusChangedPublisher =
   (pubSub: PubSub, radioClient: RadioClient, stationList: StationList) =>
-    (state: RadioState, data: KeyValuePairs) => {
-      console.log('Doing publish', state);
-      pubSub.publish('STATUS_CHANGED', {
-        statusChanged: getStatus(radioClient, stationList)
-      });
+    async (state: RadioState, data: KeyValuePairs) => {
+      const payload = await getStatus(radioClient, stationList)
+      console.log('Doing publish', payload);
+      console.log('Publishing to', pubSub);
+      pubSub.publish(statusChangedTopic, payload);
     }
 
 
 export const resolvers: Resolvers = {
   Status: {
-    state: (parent, args, {radioClient}) => getState(radioClient),
+    state: (parent, args, ctx) => {
+      console.log('resolver status state');
+      return getState(ctx.radioClient)
+    },
     nowPlaying: async (parent, args, {stationList, radioClient}) => {
       const streamUrl = await radioClient.nowPlayingUrl();
       const station = stationList.getStationByUrl(streamUrl);
@@ -77,9 +82,14 @@ export const resolvers: Resolvers = {
   },
   Subscription: {
     statusChanged: {
-      subscribe: async function* (parent, args, {pubSub} : {pubSub: PubSub}) {
-          return pubSub.asyncIterator<Status>('STATUS_CHANGED');
-      }
+      resolve: (payload: any, args, context, info) => {
+        console.log('Payload', payload);
+        console.log('args', args);
+        console.log('context', context);
+        console.log('info', info);
+        return payload;
+      },
+      subscribe: () => pubSub.asyncIterator(statusChangedTopic) as any,
     },
   },
 };

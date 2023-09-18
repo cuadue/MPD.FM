@@ -34,27 +34,11 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
             debug('System update received: ' + name);
             if (['playlist', 'player', 'mixer'].indexOf(name) >= 0) {
                 const status = await this.mpdClient.getStatus();
-                //this.emit('state', status);
+                this.emit('state', this.state, status);
             }
         });
 
-        await this.mpdClient.connect(this.connectOptions);
-    }
-
-    private onEnd() {
-        this.setState('connecting');
-    }
-
-    private onError(err: Error) {
-        console.error('MPD client socket error: ' + err);
-    }
-
-    private retryConnect() {
-        if (this.setState('connecting')) {
-            setTimeout(() => {
-                this.connect();
-            }, 3000);
-        }
+        return this.mpdClient.connect(this.connectOptions);
     }
 
     getState() {
@@ -81,7 +65,7 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
     }
 
     async sendPlayStation(stream: string) {
-        await this.mpdClient.sendCommands([
+        return this.mpdClient.sendCommands([
             "clear",
             ["repeat", '1'],
             ["add", stream],
@@ -90,7 +74,7 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
     }
 
     async sendVolume(volume: number) {
-        const data = await this.mpdClient.sendCommands([
+        return this.mpdClient.sendCommands([
             ["volume", volume.toString()],
         ]);
     }
