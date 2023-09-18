@@ -8,7 +8,7 @@ enum State {
 type Station {
   id: ID!
   streamUrl: String!
-  name: String
+  name: String!
   description: String
   logoUrl: String
 }
@@ -18,27 +18,30 @@ type NowPlaying {
   title: String
 }
 
-type Query {
+type Status {
   state: State
   nowPlaying: NowPlaying
   errorMessage: String
+}
+
+type Query {
+  status: Status
   stations: [Station!]
 }
 
-# type AddStationInput {
-#   name: String!
-#   description: String
-#   logoUrl: String!
-#   streamUrl: String!
-# }
+input AddStationInput {
+  streamUrl: String!
+  name: String!
+  description: String
+  logoUrl: String
+}
 
-# type Mutation {
-#   play(stationId: ID!): State!
-#   pause: State!
-#   resume: State!
-#   addStation(input: AddStationInput!): Station
-# }
-# 
-# type Subscription {
-#   statusChanged: Status
-# }
+type Mutation {
+  play(stationId: ID!): State!
+  stop: State!
+  addStation(input: AddStationInput!): Station
+}
+
+type Subscription {
+  statusChanged: Status
+}

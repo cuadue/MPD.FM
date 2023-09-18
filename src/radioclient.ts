@@ -1,8 +1,8 @@
 import {MpdClient, ConnectOptions, KeyValuePairs, parseKeyValueMessage} from '@cuadue/mpd';
 import { parse } from 'graphql';
 import {TypedEmitter} from 'tiny-typed-emitter';
-
-var debug = require('debug')('mpd.fm:mpdclient');
+import Debug from 'debug'
+var debug = Debug('mpd.fm:mpdclient');
 
 export type RadioState = 'connecting' | 'stopped' | 'playing' | 'error';
 

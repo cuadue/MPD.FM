@@ -4,10 +4,13 @@
       "rootDir": "src",
       "outDir": "dist",
       "module": "ES2022",
-      "strict": false
+      "strict": true,
+      "declaration": true,
+      "sourceMap": true,
+      "esModuleInterop": true,
     },
     "ts-node": {
-      "esm": true
+      "esm": true,
     }
   }
   

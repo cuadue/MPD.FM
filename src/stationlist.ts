@@ -1,18 +1,25 @@
-export type StationEntity = {
-    id: string
+import {nanoid} from 'nanoid';
+
+export type StationMetadata = {
     streamUrl: string
-    name?: string
-    description?: string
-    logoUrl?: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
 };
+export type StationEntity = { id: string } & StationMetadata;
 
 export class StationList {
     byId: {[K: string]: StationEntity} = {};
     byUrl: {[K: string]: StationEntity} = {};
 
-    addStation(s: StationEntity) {
+    createStation(metadata: StationMetadata): StationEntity {
+        return this.insertStation({id: nanoid(), ...metadata});
+    }
+
+    insertStation(s: StationEntity) {
         this.byId[s.id] = s;
         this.byUrl[s.streamUrl] = s;
+        return s;
     }
 
     getStationById(id: string): StationEntity | null {
