@@ -2,11 +2,11 @@ import {nanoid} from 'nanoid';
 
 export type StationMetadata = {
     streamUrl: string
-    name: string
+    name?: string
     description?: string | null
     logoUrl?: string | null
 };
-export type StationEntity = { id: string } & StationMetadata;
+export type StationEntity = { id?: string } & StationMetadata;
 
 export class StationList {
     byId: {[K: string]: StationEntity} = {};

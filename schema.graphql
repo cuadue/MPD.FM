@@ -1,27 +1,24 @@
 enum State {
   CONNECTING
-  STOPPED 
   PLAYING
+  PAUSED
+  STOPPED
   ERROR
 }
 
 type Station {
   id: ID!
   streamUrl: String!
-  name: String!
+  name: String
   description: String
   logoUrl: String
 }
 
-type NowPlaying {
+type Status {
+  state: State!
   station: Station
   title: String
-}
-
-type Status {
-  state: State
-  nowPlaying: NowPlaying
-  errorMessage: String
+  volume: Int
 }
 
 type Query {
@@ -31,17 +28,17 @@ type Query {
 
 input AddStationInput {
   streamUrl: String!
-  name: String!
+  name: String
   description: String
   logoUrl: String
 }
 
 type Mutation {
-  play(stationId: ID!): State!
-  stop: State!
-  addStation(input: AddStationInput!): Station
+  play(stationId: ID!): Status!
+  stop: Status!
+  addStation(input: AddStationInput!): Station!
 }
 
 type Subscription {
-  statusChanged: Status
+  statusChanged: Status!
 }

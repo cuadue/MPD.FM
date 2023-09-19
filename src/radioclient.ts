@@ -1,48 +1,72 @@
-import {MpdClient, ConnectOptions, KeyValuePairs, parseKeyValueMessage} from '@cuadue/mpd';
-import { parse } from 'graphql';
+import {
+    MpdClient,
+    ConnectOptions,
+    parseKeyValueMessage,
+    State,
+    KeyValuePairs,
+} from '@cuadue/mpd';
 import {TypedEmitter} from 'tiny-typed-emitter';
+import {StationList, StationEntity, StationMetadata} from './stationlist.js'
 import Debug from 'debug'
+
 var debug = Debug('mpd.fm:mpdclient');
 
-export type RadioState = 'connecting' | 'stopped' | 'playing' | 'error';
+export const playStates = ['play', 'stop', 'pause'] as const;
+export type PlayState = typeof playStates[number];
+const playStateFromString = (s: string): PlayState => {
+    const i = playStates.findIndex(p => p === s);
+    return i >= 0 ? playStates[i] : 'stop';
+}
 
+export type RadioStatus = {
+  radioState: State,
+  playState: PlayState,
+  volume?: number,
+  currentSongTitle?: string
+  station?: StationEntity
+};
+
+export type RadioState = State;
 interface RadioClientEvents {
-    state: (kind: RadioState, data: KeyValuePairs) => void
+    stateChanged: (state: RadioState) => void
+    statusUpdated: (status: RadioStatus) => void
 }
 
 export class RadioClient extends TypedEmitter<RadioClientEvents> {
     mpdClient: MpdClient = new MpdClient;
-    state: RadioState = 'connecting';
+    state: State = new Error('uninitialized');
     connectOptions?: ConnectOptions
+    stationList: StationList;
 
-    constructor(options?: ConnectOptions) {
+    constructor(stationList: StationList, options?: ConnectOptions) {
         super();
+        this.stationList = stationList;
         this.connectOptions = options;
     }
 
     async connect() {
         debug('Connecting');
         this.setState('connecting');
-        this.mpdClient.on('state', (state) => {
+
+        this.mpdClient.on('stateChanged', state => {
+            this.setState(state);
         });
 
-        this.mpdClient.on('ready', () => {
-            this.setState('stopped');
-        });
+        this.mpdClient.on('subsystemsChanged', async (systems: Array<string>) => {
+            const systemOfInterest = ['playlist', 'player', 'mixer'].reduce(
+                (acc, name) => acc || systems.indexOf(name) >= 0,
+                false);
 
-        this.mpdClient.on('system', async (name: string) => {
-            debug('System update received: ' + name);
-            if (['playlist', 'player', 'mixer'].indexOf(name) >= 0) {
-                const status = await this.mpdClient.getStatus();
-                this.emit('state', this.state, status);
+            if (systemOfInterest) {
+                const data = await this.getStatusRaw();
+                if (data.error) {
+                    this.setState(new Error(data.error));
+                }
+                this.emit('statusUpdated', this.parseStatus(data));
             }
         });
 
         return this.mpdClient.connect(this.connectOptions);
-    }
-
-    getState() {
-        return this.state;
     }
 
     // Returns true if the state changed
@@ -50,25 +74,36 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         const changed = newState !== this.state
         if (changed) {
             this.state = newState;
-            //this.emit('state', this.state);
+            console.log(`Radio client state ${this.state}`);
+            this.emit('stateChanged', this.state);
         }
         return changed;
     }
+
+    getState() { return this.state; }
 
     async getPlayingState() {
         const data = await this.mpdClient.sendCommands(["currentsong", "status"]);
         return parseKeyValueMessage(data);
     }
 
-    getReadyState() {
-        return this.state;
+    createStation(metadata: StationMetadata): StationEntity {
+        return this.stationList.createStation(metadata);
     }
 
-    async sendPlayStation(stream: string) {
-        return this.mpdClient.sendCommands([
+    getStations(): Array<StationEntity> {
+        return this.stationList.getStations();
+    }
+
+    async sendPlayStation(stationId: string): Promise<void>{
+        const station = this.stationList.getStationById(stationId);
+        if (!station) {
+            throw new Error(`No such station with id ${stationId}`);
+        }
+        this.mpdClient.sendCommands([
             "clear",
             ["repeat", '1'],
-            ["add", stream],
+            ["add", station.streamUrl],
             "play",
         ]);
     }
@@ -87,13 +122,25 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         return this.mpdClient.sendCommand(['pause', '1']);
     }
 
-    async nowPlayingUrl() {
-        const msg = await this.mpdClient.sendCommand("currentsong");
-        const data = parseKeyValueMessage(msg);
-        return data.file;
+    private async getStatusRaw(): Promise<KeyValuePairs> {
+        const msg = await this.mpdClient.sendCommands(['status', 'currentsong']);
+        return parseKeyValueMessage(msg);
     }
 
-    nowPlayingTitle() {
-        return 'foo';
+    private parseStatus(data: KeyValuePairs): RadioStatus {
+        return {
+            radioState: this.state,
+            playState: playStateFromString(data.state),
+            volume: Number.parseInt(data.volume) || undefined,
+            station: this.stationList.getStationByUrl(data.file) || {
+                streamUrl: data.file
+            },
+            currentSongTitle: data.Title || data.title,
+        };
+    }
+
+    async getStatus(): Promise<RadioStatus> {
+        const data = await this.getStatusRaw();
+        return this.parseStatus(data);
     }
 };

@@ -1,7 +1,11 @@
-import { KeyValuePairs } from '@cuadue/mpd/dist/index.js';
 import {Resolvers, Station} from './generated/schema.js'
-import {State, Status} from './generated/schema.js'
-import {RadioClient, RadioState} from './radioclient.js'
+import {State} from './generated/schema.js'
+import {
+  RadioClient,
+  RadioStatus,
+  RadioState,
+  PlayState
+} from './radioclient.js'
 import {StationList} from './stationlist.js'
 import { PubSub } from 'graphql-subscriptions';
 
@@ -13,80 +17,56 @@ export interface ResolverContext {
 const statusChangedTopic = 'STATUS_CHANGED';
 export const pubSub = new PubSub();
 
-const getState = (radioClient: RadioClient): State => {
-    switch (radioClient.getState()) {
-      case 'connecting': return State.Connecting;
-      case 'stopped': return State.Stopped;
-      case 'playing': return State.Playing;
-      case 'error': return State.Error;
-    }
-}
-
-const getStatus = async (radioClient: RadioClient, stationList: StationList): Promise<Status> => {
-  console.log('getStatus');
-  const streamUrl = await radioClient.nowPlayingUrl();
-  console.log('stream url ', streamUrl);
-  const station = stationList.getStationByUrl(streamUrl);
-  console.log('station', station);
-  const title = radioClient.nowPlayingTitle();
-  console.log('title', title);
-  return {
-    state: getState(radioClient),
-    nowPlaying: {station, title},
-  }
-}
-
 export const statusChangedPublisher =
   (pubSub: PubSub, radioClient: RadioClient, stationList: StationList) =>
-    async (state: RadioState, data: KeyValuePairs) => {
-      const payload = await getStatus(radioClient, stationList)
-      console.log('Doing publish', payload);
-      console.log('Publishing to', pubSub);
-      pubSub.publish(statusChangedTopic, payload);
+    async (status: RadioStatus) => {
+      console.log('status changed to', status);
+      pubSub.publish(statusChangedTopic, status);
     }
-
 
 export const resolvers: Resolvers = {
   Status: {
-    state: (parent, args, ctx) => {
-      console.log('resolver status state');
-      return getState(ctx.radioClient)
-    },
-    nowPlaying: async (parent, args, {stationList, radioClient}) => {
-      const streamUrl = await radioClient.nowPlayingUrl();
-      const station = stationList.getStationByUrl(streamUrl);
-      const title = radioClient.nowPlayingTitle();
-      return {station, title};   
+    state: (parent) => {
+      if (parent.radioState instanceof Error) {
+        throw parent.radioState;
+      }
+      switch (parent.radioState) {
+        case 'connecting': return State.Connecting;
+        case 'ready':
+          switch (parent.playState) {
+            case 'pause': return State.Paused;
+            case 'stop': return State.Stopped;
+            case 'play': return State.Playing;
+            default:
+              console.log(`Internal error: Invalid play state '${parent.playState}'`);
+              throw new Error('Internal error');
+          }
+        default:
+          console.log(`Internal error: Invalid radio state '${parent.radioState}'`);
+          throw new Error('Internal error');
+      }
     },
   },
   Query: {
-    status: async (parent, args, {radioClient, stationList}) =>
-      getStatus(radioClient, stationList),
-    stations: (parent, args, {stationList}) => stationList.getStations(),
+    status: async (root, args, {radioClient}) => radioClient.getStatus(),
+    stations: (root, args, {radioClient}) => radioClient.getStations(),
   },
   Mutation: {
-    play: (parent, {stationId}, {stationList, radioClient}) => {
-      const station = stationList.getStationById(stationId);
-      if (!station) {
-        return State.Error;
-      }
-      radioClient.sendPlayStation(station.streamUrl);
-      return getState(radioClient);
+    play: (root, {stationId}, {radioClient}) => {
+      radioClient.sendPlayStation(stationId);
+      return radioClient.getStatus();
     },
-    stop: async (parent, args, {radioClient}) => {
+    stop: async (root, args, {radioClient}) => {
       await radioClient.sendPause();
-      return getState(radioClient);
+      return radioClient.getStatus();
     },
-    addStation: (parent, {input}, {stationList}) => 
-      stationList.createStation(input),
+    addStation: (parent, {input}, {radioClient}) => 
+      radioClient.createStation(input),
   },
   Subscription: {
     statusChanged: {
       resolve: (payload: any, args, context, info) => {
-        console.log('Payload', payload);
-        console.log('args', args);
-        console.log('context', context);
-        console.log('info', info);
+        console.log('Resolve status changed payload', payload);
         return payload;
       },
       subscribe: () => pubSub.asyncIterator(statusChangedTopic) as any,

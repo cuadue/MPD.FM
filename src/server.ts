@@ -17,6 +17,7 @@ import {pubSub} from './resolvers.js'
 
 const main = async () => {
   const PORT = process.env.PORT || 4200;
+  const HOST = process.env.HOST || 'raspberrypi.local';
   const typeDefs = await readFile('./schema.graphql', 'utf8');
   const schema = makeExecutableSchema({typeDefs, resolvers});
 
@@ -45,11 +46,11 @@ const main = async () => {
   });
   await apolloServer.start();
 
-  const radioClient = new RadioClient();
   const stationList = new StationList();
+  const radioClient = new RadioClient(stationList);
   stationList.insertStation({id: 'xray', name: 'XRAY PDX', streamUrl: 'https://listen.xray.fm/stream'});
 
-  radioClient.on('state', statusChangedPublisher(pubSub, radioClient, stationList));
+  radioClient.on('statusUpdated', statusChangedPublisher(pubSub, radioClient, stationList));
 
   async function getContext(): Promise<ResolverContext> {
     return { stationList, radioClient };
