@@ -48,7 +48,6 @@ const main = async () => {
 
   const stationList = new StationList();
   const radioClient = new RadioClient(stationList);
-  stationList.insertStation({id: 'xray', name: 'XRAY PDX', streamUrl: 'https://listen.xray.fm/stream'});
 
   radioClient.on('statusUpdated', statusChangedPublisher(pubSub, radioClient, stationList));
 

@@ -9,6 +9,7 @@ enum State {
 type Station {
   id: ID!
   streamUrl: String!
+  sortOrder: Int
   name: String
   description: String
   logoUrl: String

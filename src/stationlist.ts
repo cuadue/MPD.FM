@@ -1,7 +1,9 @@
 import {nanoid} from 'nanoid';
+import { defaultStations } from './defaultstations.js';
 
 export type StationMetadata = {
     streamUrl: string
+    sortOrder?: number, // Reversed: 0 is at the bottom
     name?: string
     description?: string | null
     logoUrl?: string | null
@@ -12,8 +14,25 @@ export class StationList {
     byId: {[K: string]: StationEntity} = {};
     byUrl: {[K: string]: StationEntity} = {};
 
+    constructor() {
+        defaultStations.toReversed().map((s, i) => {
+            this.insertStation({
+                id: s.id.toString(),
+                sortOrder: i,
+                streamUrl: s.stream,
+                name: s.station,
+                description: s.desc,
+                logoUrl: s.logo,
+            });
+        });
+    }
+
     createStation(metadata: StationMetadata): StationEntity {
-        return this.insertStation({id: nanoid(), ...metadata});
+        return this.insertStation({
+            id: nanoid(),
+            sortOrder: Object.values(this.byId).reduce((acc, s) =>
+                Math.max(acc, s.sortOrder), 0),
+            ...metadata});
     }
 
     insertStation(s: StationEntity) {
@@ -31,6 +50,7 @@ export class StationList {
     }
 
     getStations(): Array<StationEntity> {
-        return Object.values(this.byId);
+        return Object.values(this.byId).toSorted(
+            (a, b) => a.sortOrder - b.sortOrder);
     }
 };

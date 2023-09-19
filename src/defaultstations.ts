@@ -1,4 +1,4 @@
-[
+export const defaultStations = [
     {   "id": 3,
         "station": "Radio88",
         "desc": "Rádió 88 Szeged",
@@ -68,5 +68,4 @@
         "logo": "https://kboo.fm/sites/all/themes/custom/kbooui/logo.png",
         "stream": "https://live.kboo.fm:8443/high"
     }
-]
-
+];
