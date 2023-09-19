@@ -7,6 +7,7 @@ import {
 } from '@cuadue/mpd';
 import {TypedEmitter} from 'tiny-typed-emitter';
 import {StationList, StationEntity, StationMetadata} from './stationlist.js'
+import equal from 'fast-deep-equal';
 import Debug from 'debug'
 
 var debug = Debug('mpd.fm:mpdclient');
@@ -37,6 +38,7 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
     state: State = new Error('uninitialized');
     connectOptions?: ConnectOptions
     stationList: StationList;
+    status?: RadioStatus;
 
     constructor(stationList: StationList, options?: ConnectOptions) {
         super();
@@ -58,11 +60,12 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
                 false);
 
             if (systemOfInterest) {
+                console.log('Subsystems changed', systems);
                 const data = await this.getStatusRaw();
                 if (data.error) {
                     this.setState(new Error(data.error));
                 }
-                this.emit('statusUpdated', this.parseStatus(data));
+                this.setStatus(this.parseStatus(data));
             }
         });
 
@@ -78,6 +81,13 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
             this.emit('stateChanged', this.state);
         }
         return changed;
+    }
+
+    private setStatus(newStatus: RadioStatus) {
+        if (!equal(this.status, newStatus)) {
+            this.status = newStatus;
+            this.emit('statusUpdated', this.status);
+        }
     }
 
     getState() { return this.state; }
