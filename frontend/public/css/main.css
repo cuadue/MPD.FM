@@ -186,7 +186,7 @@ html, button, input, select, textarea,
     filter: invert(1);
 }
 
-.volume-controls .l-box:focus, {
+.volume-controls .l-box:focus,
 .volume-controls .l-box:focus:active {
     animation: pulse 1s ease-in-out;
     animation-iteration-count: 1;

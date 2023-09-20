@@ -1,0 +1,20 @@
+{
+    "extends": "@tsconfig/node18/tsconfig.json",
+    "compilerOptions": {
+      "rootDir": "src",
+      "outDir": "dist",
+      "module": "ES2022",
+      "target": "ES5",
+      "moduleResolution": "Bundler",
+      "jsx": "react",
+      "strict": false,
+      "declaration": true,
+      "sourceMap": true,
+      "esModuleInterop": true,
+      "lib": ["DOM"]
+    },
+    "ts-node": {
+      "esm": true,
+    }
+  }
+  
