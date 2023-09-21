@@ -17,10 +17,9 @@
         <link rel="stylesheet" href="css/main.css">
     </head>
     <body>
-        <div id="app">
+        <div id="root">
             <!--[if lte IE 9]>
                 <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-            <![endif]-->
 
             <div class="error-message" v-if="errorState.wssDisconnect || errorState.mpdServerDisconnect">
                 <div class="pure-g error-content">
@@ -106,6 +105,7 @@
             <script src="js/plugins.js"></script>
             <script src="js/vendor/ReconnectingWebSocket.js"></script>
             <script src="js/main.js"></script>
+            <![endif]-->
         </div>
     </body>
 </html>

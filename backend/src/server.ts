@@ -15,10 +15,10 @@ import { WebSocketServer } from 'ws';
 import { useServer as useWsServer } from 'graphql-ws/lib/use/ws';
 import {pubSub} from './resolvers.js'
 
-const main = async () => {
-  const PORT = process.env.PORT || 4200;
-  const HOST = process.env.HOST || 'raspberrypi.local';
-  const typeDefs = await readFile('./schema.graphql', 'utf8');
+const PORT = 8080;
+
+const graphqlApp = async () => {
+  const typeDefs = await readFile('../schema.graphql', 'utf8');
   const schema = makeExecutableSchema({typeDefs, resolvers});
 
   const app = express();
@@ -58,13 +58,15 @@ const main = async () => {
   await radioClient.connect();
   console.log('Radio client connected');
 
-  app.use('/graphql', cors<cors.CorsRequest>(), bodyParser.json(),
+  app.use('/graphql', cors(), bodyParser.json(),
           apolloMiddleware(apolloServer, { context: getContext }));
+  const staticPath = '../frontend/dist';
+  app.use('/', cors(), express.static(staticPath));
 
   httpServer.listen({ port: PORT }, () => {
     console.log(`🚀 GraphQL endpoint: http://localhost:${PORT}/graphql`);
-    console.log(`🚀 Subscription endpoint ready at ws://localhost:${PORT}/graphql`);
+    console.log(`🚀 GraphQL subscription endpoint: ws://localhost:${PORT}/graphql`);
   });
 };
 
-main()
+graphqlApp()

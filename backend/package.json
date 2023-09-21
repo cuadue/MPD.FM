@@ -1,5 +1,5 @@
 {
-  "name": "mpd.fm",
+  "name": "mpd.fm-backend",
   "version": "0.2.0",
   "description": "A MPD web server and client to listen to your favorite online radio stations",
   "main": "index.js",
@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "start": "concurrently \"nodemon src/server.ts\" \"graphql-codegen --config graphql-codegen.yml --watch\"",
-    "codegen": "graphql-codegen --config graphql-codegen.yml"
+    "codegen": "graphql-codegen --config graphql-codegen.yml",
+    "serve": "tsx src/server.tsx"
   },
   "repository": {
     "type": "git",
@@ -50,6 +51,7 @@
     "concurrently": "^8.0.1",
     "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",
+    "tsx": "^3.12.10",
     "typescript": "^5.0.4"
   },
   "nodemonConfig": {
