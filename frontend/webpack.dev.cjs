@@ -1,5 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 
 module.exports = {
   mode: "development", // this will trigger some webpack default stuffs for dev
@@ -15,9 +16,16 @@ module.exports = {
     port: 3000,
   },
   devtool: "inline-source-map", // a sourcemap type. map to original source with line number
-  plugins: [new HtmlWebpackPlugin({
-    template: "public/index.html"
-  })], // automatically creates a 'index.html' for us with our <link>, <style>, <script> tags inserted! Visit https://github.com/jantimon/html-webpack-plugin for more options
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: "src/index.html"
+    }),
+    new FaviconsWebpackPlugin({
+      logo: './src/assets/icon.svg',
+      inject: true,
+      mode: 'webapp',
+    }),
+  ], // automatically creates a 'index.html' for us with our <link>, <style>, <script> tags inserted! Visit https://github.com/jantimon/html-webpack-plugin for more options
   module: {
     rules: [
       {
