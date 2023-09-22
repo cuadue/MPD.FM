@@ -1,22 +1,22 @@
-import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { graphql } from '../generated';
 
-export const apolloClient = new ApolloClient({
-  cache: new InMemoryCache(),
-  uri: 'http://localhost:8080/graphql',
-});
+const fullStatusFragment = graphql(`
+  fragment FullStatus on Status{
+    state
+    station {
+      name
+      logoUrl
+      description
+    }
+    title
+    volume
+  }
+`)
 
 export const fullStatusQuery = graphql(`
-  query FullStatus {
+  query FullStatusQuery {
     status {
-      state
-      station {
-        name
-        logoUrl
-        description
-      }
-      title
-      volume
+      ...FullStatus
     }
   }
 `);
@@ -37,7 +37,7 @@ export const allStationsQuery = graphql(`
 export const playMutation = graphql(`
   mutation Play($input: ID!) {
     play(stationId: $input) {
-      state
+      ...FullStatus
     }
   }
 `);
@@ -45,7 +45,15 @@ export const playMutation = graphql(`
 export const stopMutation = graphql(`
   mutation Stop {
     stop {
-      state
+      ...FullStatus
+    }
+  }
+`);
+
+export const statusSubscription = graphql(`
+  subscription StatusSubscription {
+    statusChanged {
+      ...FullStatus
     }
   }
 `);

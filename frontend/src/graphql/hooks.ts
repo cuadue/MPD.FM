@@ -1,8 +1,9 @@
-import { useMutation } from '@apollo/client';
-import { playMutation, stopMutation } from './queries';
+import { useMutation, useQuery, useSubscription } from '@apollo/client';
+import { fullStatusQuery, playMutation, statusSubscription, stopMutation } from './queries';
+import { State } from '../generated/graphql';
 
 export const usePlay = () => {
-  const [mutate, { loading }] = useMutation(playMutation);
+  const [mutate, { loading, error }] = useMutation(playMutation);
 
   const play = async (stationId: string) => {
     const {data: {play: {state}}} = await mutate({
@@ -11,22 +12,41 @@ export const usePlay = () => {
     return state;
   };
 
-  return {
-    play,
-    loading,
-  };
+  return { play, loading, error};
 }
 
 export const useStop = () => {
-  const [mutate, { loading }] = useMutation(stopMutation);
+  const [mutate, { loading, error }] = useMutation(stopMutation);
 
   const stop = async () => {
-    const {data: {stop: {state}}} = await mutate();
-    return state;
+    try {
+      const {data: {stop: {state}}} = await mutate();
+      return state;
+    } catch (err) {
+      console.log('useStop', err);
+      return err;
+    }
   };
 
+  return { stop, loading, error };
+}
+
+
+export const useStatusSubscription = () => {
+  const {loading, error, data} = useQuery(fullStatusQuery);
+  useSubscription(statusSubscription, {
+    onData: ({client, data}) => {
+      const newStatus = data.data.statusChanged;
+      console.log('new status', newStatus);
+      client.cache.updateQuery(
+        {query: fullStatusQuery},
+        () => ({status: newStatus}));
+    },
+  });
+
   return {
-    stop,
     loading,
+    error,
+    status: data?.status ?? {state: State.Connecting}
   };
 }

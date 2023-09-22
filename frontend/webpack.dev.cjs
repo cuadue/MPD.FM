@@ -29,6 +29,10 @@ module.exports = {
         exclude: /node_modules/,
         use: ['ts-loader'],
       },
+      {
+        test: /\.(png|ico|xml|webmainfest)$/,
+        type: 'asset/resource'
+      }
     ]
   },
   optimization: {

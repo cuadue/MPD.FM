@@ -21,9 +21,9 @@ const playStateFromString = (s: string): PlayState => {
 
 export type RadioStatus = {
   radioState: State,
-  playState: PlayState,
+  playState: PlayState | Error,
   volume?: number,
-  currentSongTitle?: string
+  title?: string
   station?: StationEntity
 };
 
@@ -48,10 +48,10 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
 
     async connect() {
         debug('Connecting');
-        this.setState('connecting');
+        this.setRadioState('connecting');
 
         this.mpdClient.on('stateChanged', state => {
-            this.setState(state);
+            this.setRadioState(state);
         });
 
         this.mpdClient.on('subsystemsChanged', async (systems: Array<string>) => {
@@ -60,11 +60,7 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
                 false);
 
             if (systemOfInterest) {
-                console.log('Subsystems changed', systems);
                 const data = await this.getStatusRaw();
-                if (data.error) {
-                    this.setState(new Error(data.error));
-                }
                 this.setStatus(this.parseStatus(data));
             }
         });
@@ -72,8 +68,7 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         return this.mpdClient.connect(this.connectOptions);
     }
 
-    // Returns true if the state changed
-    private setState(newState: RadioState): boolean {
+    private setRadioState(newState: RadioState): boolean {
         const changed = newState !== this.state
         if (changed) {
             this.state = newState;
@@ -138,14 +133,17 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
     }
 
     private parseStatus(data: KeyValuePairs): RadioStatus {
+        const playState = data.error ?
+            new Error(data.error) :
+            playStateFromString(data.state);
         return {
             radioState: this.state,
-            playState: playStateFromString(data.state),
+            playState,
             volume: Number.parseInt(data.volume) || undefined,
             station: this.stationList.getStationByUrl(data.file) || {
                 streamUrl: data.file
             },
-            currentSongTitle: data.Title || data.title,
+            title: data.Title || data.title,
         };
     }
 

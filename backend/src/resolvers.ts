@@ -1,10 +1,9 @@
-import {Resolvers, Station} from './generated/schema.js'
+import { GraphQLError } from 'graphql';
+import {Resolvers} from './generated/schema.js'
 import {State} from './generated/schema.js'
 import {
   RadioClient,
   RadioStatus,
-  RadioState,
-  PlayState
 } from './radioclient.js'
 import {StationList} from './stationlist.js'
 import { PubSub } from 'graphql-subscriptions';
@@ -28,22 +27,26 @@ export const resolvers: Resolvers = {
   Status: {
     state: (parent) => {
       if (parent.radioState instanceof Error) {
-        throw parent.radioState;
+        throw new GraphQLError('radio state' + parent.radioState.toString());;
       }
       switch (parent.radioState) {
         case 'connecting': return State.Connecting;
         case 'ready':
+          if (parent.playState instanceof Error) {
+            console.log('play state is error ', parent.playState); 
+            throw new GraphQLError('Internal error 1');
+          }
           switch (parent.playState) {
             case 'pause': return State.Paused;
             case 'stop': return State.Stopped;
             case 'play': return State.Playing;
             default:
               console.log(`Internal error: Invalid play state '${parent.playState}'`);
-              throw new Error('Internal error');
+              throw new GraphQLError('Internal error 2');
           }
         default:
           console.log(`Internal error: Invalid radio state '${parent.radioState}'`);
-          throw new Error('Internal error');
+          throw new GraphQLError('Internal error 3');
       }
     },
   },
@@ -52,8 +55,8 @@ export const resolvers: Resolvers = {
     stations: (root, args, {radioClient}) => radioClient.getStations(),
   },
   Mutation: {
-    play: (root, {stationId}, {radioClient}) => {
-      radioClient.sendPlayStation(stationId);
+    play: async (root, {stationId}, {radioClient}) => {
+      await radioClient.sendPlayStation(stationId);
       return radioClient.getStatus();
     },
     stop: async (root, args, {radioClient}) => {

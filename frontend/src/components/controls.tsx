@@ -1,12 +1,13 @@
-import React from "react";
+import React, { MouseEventHandler } from "react";
 import { useQuery } from '@apollo/client';
 import { State, Station, Status } from "../generated/graphql";
 import { fullStatusQuery } from "../graphql/queries";
+import { useStatusSubscription, useStop } from "../graphql/hooks";
 
 const Container: React.FC<{
     children: React.ReactNode
 }> = ({children}) => {
-    return <div>
+    return <div className='controls'>
         {children}
     </div>
 };
@@ -17,9 +18,11 @@ const Connecting: React.FC = () => {
     </Container>
 };
 
-const Error: React.FC = () => {
+const Error: React.FC<{
+    message: string
+}> = ({message}) => {
     return <Container>
-        Error
+        Error: {message}
     </Container>
 };
 
@@ -28,9 +31,24 @@ const Playing: React.FC<{
     logoUrl?: string
     description?: string
     title?: string
-}> = ({name, logoUrl, description, title}) => <Container>
-    Playing {name} {logoUrl} {description} {title}
-</Container>
+}> = ({name, logoUrl, description, title}) => {
+    const {loading, error, stop} = useStop();
+    const clickHandler: MouseEventHandler = async () => {
+        const state = await stop()
+        console.log('state after stopping', state);
+    }
+    if (loading) {
+        console.log('Stopping');
+    }
+    if (error) {
+        console.log('Failed to stop', error);
+    }
+    return <Container>
+        <img src={logoUrl} height='100px' width='100px' />
+        <button onClick={clickHandler}>Stop</button>
+        Playing {name} {logoUrl} {description} {title}
+    </Container>
+}
 
 const Stopped: React.FC<{
     name?: string
@@ -41,21 +59,22 @@ const Stopped: React.FC<{
 </Container>
 
 export const Controls: React.FC = () => {
-    const {loading, error, data} = useQuery(fullStatusQuery);
+    const {loading, error, status} = useStatusSubscription();
+
     if (loading) {
         return <div>Loading...</div>
     }
     if (error) {
-        return <div>Error: {error.message}</div>
+        return <Error message={error.message} />
     }
 
-    switch (data.status.state) {
+    switch (status.state) {
         case State.Connecting: return <Connecting />;
-        case State.Error: return <Error />;
+        case State.Error: return <Error message='unknown'/>;
         case State.Playing:
-            return <Playing {...data.status.station} title={data.status.title} />;
+            return <Playing {...status.station} title={status.title} />;
         case State.Paused:
         case State.Stopped:
-            return <Stopped {...data.status.station} />;
+            return <Stopped {...status.station} />;
     }
 };

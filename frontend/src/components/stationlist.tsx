@@ -5,10 +5,16 @@ import { allStationsQuery } from '../graphql/queries';
 import { usePlay } from '../graphql/hooks';
 
 const Station: React.FC<StationModel> = ({ id, description, logoUrl, name, streamUrl}) => {
-    const {loading, play} = usePlay();
+    const {loading, error, play} = usePlay();
     const handleClick: MouseEventHandler = async () => {
         const state = await play(id);
-        console.log(state);
+        console.log('state after play', state);
+    }
+    if (loading) {
+        console.log('Starting to play...');
+    }
+    if (error) {
+        console.log('Failed to play', error);
     }
 
     return <div className='station'>
@@ -25,7 +31,8 @@ export const StationList: React.FC = () => {
     if (error) {
         return <div>Error: {error.message}</div>
     }
-    const stations = data.stations.sort((a, b) => a.sortOrder - b.sortOrder);
+    const stations = [...data.stations];
+    stations.sort((a, b) => a.sortOrder - b.sortOrder);
     return <div className='station-list'>
         {stations.map(s => 
             <Station key={s.id} {...s}></Station>
