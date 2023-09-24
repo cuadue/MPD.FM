@@ -3,6 +3,7 @@ import { graphql } from '../generated';
 const fullStatusFragment = graphql(`
   fragment FullStatus on Status{
     state
+    errorMessage
     station {
       name
       logoUrl

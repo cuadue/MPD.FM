@@ -15,7 +15,9 @@ export class StationList {
     byUrl: {[K: string]: StationEntity} = {};
 
     constructor() {
-        defaultStations.toReversed().map((s, i) => {
+        const s = defaultStations.slice();
+        s.reverse();
+        s.map((s, i) => {
             this.insertStation({
                 id: s.id.toString(),
                 sortOrder: i,
@@ -50,7 +52,8 @@ export class StationList {
     }
 
     getStations(): Array<StationEntity> {
-        return Object.values(this.byId).toSorted(
-            (a, b) => a.sortOrder - b.sortOrder);
+        const values = Object.values(this.byId);
+        values.sort((a, b) => a.sortOrder - b.sortOrder);
+        return values;
     }
 };

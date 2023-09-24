@@ -1,7 +1,5 @@
 import React, { MouseEventHandler } from "react";
-import { useQuery } from '@apollo/client';
-import { State, Station, Status } from "../generated/graphql";
-import { fullStatusQuery } from "../graphql/queries";
+import { State } from "../generated/graphql";
 import { useStatusSubscription, useStop } from "../graphql/hooks";
 
 const Container: React.FC<{
@@ -31,7 +29,7 @@ const Playing: React.FC<{
     logoUrl?: string
     description?: string
     title?: string
-}> = ({name, logoUrl, description, title}) => {
+}> = ({name: stationName, logoUrl, description: stationDescription, title}) => {
     const {loading, error, stop} = useStop();
     const clickHandler: MouseEventHandler = async () => {
         const state = await stop()
@@ -44,9 +42,11 @@ const Playing: React.FC<{
         console.log('Failed to stop', error);
     }
     return <Container>
-        <img src={logoUrl} height='100px' width='100px' />
+        <img src={logoUrl} height='100px' width='100px'
+             alt={`{stationName} ({stationDescription)}`} />
+        <b>{stationName}</b> &mdash; <i>{title}</i>
+        <br></br>
         <button onClick={clickHandler}>Stop</button>
-        Playing {name} {logoUrl} {description} {title}
     </Container>
 }
 
@@ -55,7 +55,8 @@ const Stopped: React.FC<{
     logoUrl?: string
     description?: string
 }> = ({name, logoUrl, description}) => <Container>
-    Stopped {name} {logoUrl} {description}
+    <img src={logoUrl} height='100px' width='100px' />
+    Stopped {name} {description}
 </Container>
 
 export const Controls: React.FC = () => {
@@ -65,12 +66,13 @@ export const Controls: React.FC = () => {
         return <div>Loading...</div>
     }
     if (error) {
+        console.log('status has an error, state is', status.state);
         return <Error message={error.message} />
     }
 
     switch (status.state) {
         case State.Connecting: return <Connecting />;
-        case State.Error: return <Error message='unknown'/>;
+        case State.Error: return <Error message={status.errorMessage} />;
         case State.Playing:
             return <Playing {...status.station} title={status.title} />;
         case State.Paused:

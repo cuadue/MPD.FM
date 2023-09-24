@@ -17,6 +17,7 @@ type Station {
 
 type Status {
   state: State!
+  errorMessage: String
   station: Station
   title: String
   volume: Int

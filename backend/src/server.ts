@@ -3,17 +3,15 @@ import { expressMiddleware as apolloMiddleware } from '@apollo/server/express4';
 import express from 'express';
 import cors from 'cors';
 import { readFile } from 'node:fs/promises';
-import {resolvers, statusChangedPublisher, ResolverContext} from './resolvers.js';
+import {resolvers, ResolverContext} from './resolvers.js';
 import { RadioClient } from './radioclient.js';
 import { StationList } from './stationlist.js';
 import bodyParser from 'body-parser';
-import { PubSub } from 'graphql-subscriptions';
 import { createServer } from 'http';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer as useWsServer } from 'graphql-ws/lib/use/ws';
-import {pubSub} from './resolvers.js'
 
 const PORT = 8080;
 
@@ -35,21 +33,19 @@ const graphqlApp = async () => {
   const apolloServer = new ApolloServer({
     schema,
     plugins: [
-    // Proper shutdown for the HTTP server.
-    ApolloServerPluginDrainHttpServer({ httpServer }),
+      // Proper shutdown for the HTTP server.
+      ApolloServerPluginDrainHttpServer({ httpServer }),
 
-    // Proper shutdown for the WebSocket server.
-    {async serverWillStart() {
-        return { async drainServer() { await serverCleanup.dispose(); } };
-    }},
-  ],
+      // Proper shutdown for the WebSocket server.
+      {async serverWillStart() {
+          return { async drainServer() { await serverCleanup.dispose(); } };
+      }},
+    ],
   });
   await apolloServer.start();
 
   const stationList = new StationList();
   const radioClient = new RadioClient(stationList);
-
-  radioClient.on('statusUpdated', statusChangedPublisher(pubSub, radioClient, stationList));
 
   async function getContext(): Promise<ResolverContext> {
     return { stationList, radioClient };

@@ -4,7 +4,7 @@ import {
     parseKeyValueMessage,
     State,
     KeyValuePairs,
-} from '@cuadue/mpd';
+} from './mpdclient.js';
 import {TypedEmitter} from 'tiny-typed-emitter';
 import {StationList, StationEntity, StationMetadata} from './stationlist.js'
 import equal from 'fast-deep-equal';
@@ -61,18 +61,31 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
 
             if (systemOfInterest) {
                 const data = await this.getStatusRaw();
-                this.setStatus(this.parseStatus(data));
+                if (data instanceof Error) {
+                    this.setRadioState(data);
+                } else {
+                    this.setStatus(this.parseStatus(data));
+                }
             }
         });
 
         return this.mpdClient.connect(this.connectOptions);
     }
 
-    private setRadioState(newState: RadioState): boolean {
+    private async setRadioState(newState: RadioState) {
         const changed = newState !== this.state
         if (changed) {
             this.state = newState;
-            console.log(`Radio client state ${this.state}`);
+            if (this.state == 'ready') {
+                const response = await this.getStatus();
+                if (response instanceof Error) {
+                    console.log('Overwriting error', this.state, 'with', response);
+                    this.state = response;
+                } else {
+                    this.emit('statusUpdated', response);
+                }
+            }
+
             this.emit('stateChanged', this.state);
         }
         return changed;
@@ -85,13 +98,6 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         }
     }
 
-    getState() { return this.state; }
-
-    async getPlayingState() {
-        const data = await this.mpdClient.sendCommands(["currentsong", "status"]);
-        return parseKeyValueMessage(data);
-    }
-
     createStation(metadata: StationMetadata): StationEntity {
         return this.stationList.createStation(metadata);
     }
@@ -100,17 +106,19 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         return this.stationList.getStations();
     }
 
-    async sendPlayStation(stationId: string): Promise<void>{
+    async sendPlayStation(stationId: string): Promise<null | Error>{
         const station = this.stationList.getStationById(stationId);
         if (!station) {
             throw new Error(`No such station with id ${stationId}`);
         }
-        this.mpdClient.sendCommands([
+        const result = await this.mpdClient.sendCommands([
             "clear",
             ["repeat", '1'],
             ["add", station.streamUrl],
             "play",
         ]);
+        if (result instanceof Error) return result;
+        else return null;
     }
 
     async sendVolume(volume: number) {
@@ -127,8 +135,9 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         return this.mpdClient.sendCommand(['pause', '1']);
     }
 
-    private async getStatusRaw(): Promise<KeyValuePairs> {
+    private async getStatusRaw(): Promise<KeyValuePairs | Error> {
         const msg = await this.mpdClient.sendCommands(['status', 'currentsong']);
+        if (msg instanceof Error) return msg;
         return parseKeyValueMessage(msg);
     }
 
@@ -147,8 +156,36 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         };
     }
 
-    async getStatus(): Promise<RadioStatus> {
+    async getStatus(): Promise<RadioStatus | Error> {
         const data = await this.getStatusRaw();
+        if (data instanceof Error) return data;
         return this.parseStatus(data);
+    }
+
+    radioStatusAsyncIterable(): AsyncIterable<RadioStatus> {
+        var loop = true;
+        var resolve: null | ((status: RadioStatus) => void);
+
+        const listener = (status: RadioStatus) => {
+            if (resolve) {
+                resolve(status);
+                resolve = null;
+            }
+        };
+
+        this.on('statusUpdated', listener);
+        const cleanup = () => this.off('statusUpdated', listener);
+
+        async function* it() {
+            try {
+                while (loop) {
+                    yield await new Promise<RadioStatus>(res => resolve = res);
+                }
+            } finally {
+                console.log('cleaning up');
+                cleanup();
+            }
+        } 
+        return {[Symbol.asyncIterator]: it}
     }
 };

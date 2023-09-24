@@ -10,13 +10,11 @@
       "license": "MIT",
       "dependencies": {
         "@apollo/server": "^4.6.0",
-        "@cuadue/mpd": "^2.1.0",
         "body-parser": "^1.20.2",
         "cors": "^2.8.5",
         "express": "~4.15.5",
         "fast-deep-equal": "^3.1.3",
         "graphql": "^16.6.0",
-        "graphql-subscriptions": "^2.0.0",
         "graphql-ws": "^5.14.0",
         "morgan": "~1.9.0",
         "nanoid": "^5.0.1",
@@ -28,9 +26,11 @@
         "@graphql-codegen/cli": "5.0.0",
         "@graphql-codegen/typescript": "4.0.1",
         "@graphql-codegen/typescript-resolvers": "4.0.1",
+        "@parcel/watcher": "^2.3.0",
         "@tsconfig/node18": "^2.0.0",
         "@types/cors": "^2.8.13",
         "@types/debug": "^4.1.8",
+        "@types/graphql": "^14.5.0",
         "concurrently": "^8.0.1",
         "nodemon": "^2.0.22",
         "ts-node": "^10.9.1",
@@ -1598,17 +1598,6 @@
         "@jridgewell/sourcemap-codec": "^1.4.10"
       }
     },
-    "node_modules/@cuadue/mpd": {
-      "version": "2.1.0",
-      "resolved": "https://registry.npmjs.org/@cuadue/mpd/-/mpd-2.1.0.tgz",
-      "integrity": "sha512-1tQVzAOP1fwn8D1e92CaYV0qlFoYjG5d5z9/Wjx3/XRcY6S1qqMmIz6hUm3bZCcK/bv1yPibaCU/j7pZobCxZw==",
-      "dependencies": {
-        "tiny-typed-emitter": "^2.1.0"
-      },
-      "engines": {
-        "node": ">=12.20.0"
-      }
-    },
     "node_modules/@esbuild-kit/cjs-loader": {
       "version": "2.4.4",
       "resolved": "https://registry.npmjs.org/@esbuild-kit/cjs-loader/-/cjs-loader-2.4.4.tgz",
@@ -3122,6 +3111,280 @@
         "node": ">= 8"
       }
     },
+    "node_modules/@parcel/watcher": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher/-/watcher-2.3.0.tgz",
+      "integrity": "sha512-pW7QaFiL11O0BphO+bq3MgqeX/INAk9jgBldVDYjlQPO4VddoZnF22TcF9onMhnLVHuNqBJeRf+Fj7eezi/+rQ==",
+      "dev": true,
+      "hasInstallScript": true,
+      "dependencies": {
+        "detect-libc": "^1.0.3",
+        "is-glob": "^4.0.3",
+        "micromatch": "^4.0.5",
+        "node-addon-api": "^7.0.0"
+      },
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      },
+      "optionalDependencies": {
+        "@parcel/watcher-android-arm64": "2.3.0",
+        "@parcel/watcher-darwin-arm64": "2.3.0",
+        "@parcel/watcher-darwin-x64": "2.3.0",
+        "@parcel/watcher-freebsd-x64": "2.3.0",
+        "@parcel/watcher-linux-arm-glibc": "2.3.0",
+        "@parcel/watcher-linux-arm64-glibc": "2.3.0",
+        "@parcel/watcher-linux-arm64-musl": "2.3.0",
+        "@parcel/watcher-linux-x64-glibc": "2.3.0",
+        "@parcel/watcher-linux-x64-musl": "2.3.0",
+        "@parcel/watcher-win32-arm64": "2.3.0",
+        "@parcel/watcher-win32-ia32": "2.3.0",
+        "@parcel/watcher-win32-x64": "2.3.0"
+      }
+    },
+    "node_modules/@parcel/watcher-android-arm64": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-android-arm64/-/watcher-android-arm64-2.3.0.tgz",
+      "integrity": "sha512-f4o9eA3dgk0XRT3XhB0UWpWpLnKgrh1IwNJKJ7UJek7eTYccQ8LR7XUWFKqw6aEq5KUNlCcGvSzKqSX/vtWVVA==",
+      "cpu": [
+        "arm64"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "android"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
+    "node_modules/@parcel/watcher-darwin-arm64": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-darwin-arm64/-/watcher-darwin-arm64-2.3.0.tgz",
+      "integrity": "sha512-mKY+oijI4ahBMc/GygVGvEdOq0L4DxhYgwQqYAz/7yPzuGi79oXrZG52WdpGA1wLBPrYb0T8uBaGFo7I6rvSKw==",
+      "cpu": [
+        "arm64"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "darwin"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
+    "node_modules/@parcel/watcher-darwin-x64": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-darwin-x64/-/watcher-darwin-x64-2.3.0.tgz",
+      "integrity": "sha512-20oBj8LcEOnLE3mgpy6zuOq8AplPu9NcSSSfyVKgfOhNAc4eF4ob3ldj0xWjGGbOF7Dcy1Tvm6ytvgdjlfUeow==",
+      "cpu": [
+        "x64"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "darwin"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
+    "node_modules/@parcel/watcher-freebsd-x64": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-freebsd-x64/-/watcher-freebsd-x64-2.3.0.tgz",
+      "integrity": "sha512-7LftKlaHunueAEiojhCn+Ef2CTXWsLgTl4hq0pkhkTBFI3ssj2bJXmH2L67mKpiAD5dz66JYk4zS66qzdnIOgw==",
+      "cpu": [
+        "x64"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "freebsd"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
+    "node_modules/@parcel/watcher-linux-arm-glibc": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-linux-arm-glibc/-/watcher-linux-arm-glibc-2.3.0.tgz",
+      "integrity": "sha512-1apPw5cD2xBv1XIHPUlq0cO6iAaEUQ3BcY0ysSyD9Kuyw4MoWm1DV+W9mneWI+1g6OeP6dhikiFE6BlU+AToTQ==",
+      "cpu": [
+        "arm"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
+    "node_modules/@parcel/watcher-linux-arm64-glibc": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-linux-arm64-glibc/-/watcher-linux-arm64-glibc-2.3.0.tgz",
+      "integrity": "sha512-mQ0gBSQEiq1k/MMkgcSB0Ic47UORZBmWoAWlMrTW6nbAGoLZP+h7AtUM7H3oDu34TBFFvjy4JCGP43JlylkTQA==",
+      "cpu": [
+        "arm64"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
+    "node_modules/@parcel/watcher-linux-arm64-musl": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-linux-arm64-musl/-/watcher-linux-arm64-musl-2.3.0.tgz",
+      "integrity": "sha512-LXZAExpepJew0Gp8ZkJ+xDZaTQjLHv48h0p0Vw2VMFQ8A+RKrAvpFuPVCVwKJCr5SE+zvaG+Etg56qXvTDIedw==",
+      "cpu": [
+        "arm64"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
+    "node_modules/@parcel/watcher-linux-x64-glibc": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-linux-x64-glibc/-/watcher-linux-x64-glibc-2.3.0.tgz",
+      "integrity": "sha512-P7Wo91lKSeSgMTtG7CnBS6WrA5otr1K7shhSjKHNePVmfBHDoAOHYRXgUmhiNfbcGk0uMCHVcdbfxtuiZCHVow==",
+      "cpu": [
+        "x64"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
+    "node_modules/@parcel/watcher-linux-x64-musl": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-linux-x64-musl/-/watcher-linux-x64-musl-2.3.0.tgz",
+      "integrity": "sha512-+kiRE1JIq8QdxzwoYY+wzBs9YbJ34guBweTK8nlzLKimn5EQ2b2FSC+tAOpq302BuIMjyuUGvBiUhEcLIGMQ5g==",
+      "cpu": [
+        "x64"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "linux"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
+    "node_modules/@parcel/watcher-win32-arm64": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-win32-arm64/-/watcher-win32-arm64-2.3.0.tgz",
+      "integrity": "sha512-35gXCnaz1AqIXpG42evcoP2+sNL62gZTMZne3IackM+6QlfMcJLy3DrjuL6Iks7Czpd3j4xRBzez3ADCj1l7Aw==",
+      "cpu": [
+        "arm64"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "win32"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
+    "node_modules/@parcel/watcher-win32-ia32": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-win32-ia32/-/watcher-win32-ia32-2.3.0.tgz",
+      "integrity": "sha512-FJS/IBQHhRpZ6PiCjFt1UAcPr0YmCLHRbTc00IBTrelEjlmmgIVLeOx4MSXzx2HFEy5Jo5YdhGpxCuqCyDJ5ow==",
+      "cpu": [
+        "ia32"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "win32"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
+    "node_modules/@parcel/watcher-win32-x64": {
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/@parcel/watcher-win32-x64/-/watcher-win32-x64-2.3.0.tgz",
+      "integrity": "sha512-dLx+0XRdMnVI62kU3wbXvbIRhLck4aE28bIGKbRGS7BJNt54IIj9+c/Dkqb+7DJEbHUZAX1bwaoM8PqVlHJmCA==",
+      "cpu": [
+        "x64"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "win32"
+      ],
+      "engines": {
+        "node": ">= 10.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/parcel"
+      }
+    },
     "node_modules/@peculiar/asn1-schema": {
       "version": "2.3.6",
       "resolved": "https://registry.npmjs.org/@peculiar/asn1-schema/-/asn1-schema-2.3.6.tgz",
@@ -3278,9 +3541,9 @@
       }
     },
     "node_modules/@types/debug": {
-      "version": "4.1.8",
-      "resolved": "https://registry.npmjs.org/@types/debug/-/debug-4.1.8.tgz",
-      "integrity": "sha512-/vPO1EPOs306Cvhwv7KfVfYvOJqA/S/AXjaHQiJboCZzcNDb+TIJFN9/2C9DZ//ijSKWioNyUxD792QmDJ+HKQ==",
+      "version": "4.1.9",
+      "resolved": "https://registry.npmjs.org/@types/debug/-/debug-4.1.9.tgz",
+      "integrity": "sha512-8Hz50m2eoS56ldRlepxSBa6PWEVCtzUo/92HgLc2qTMnotJNIm7xP+UZhyWoYsyOdd5dxZ+NZLb24rsKyFs2ow==",
       "dev": true,
       "dependencies": {
         "@types/ms": "*"
@@ -3306,6 +3569,16 @@
         "@types/qs": "*",
         "@types/range-parser": "*",
         "@types/send": "*"
+      }
+    },
+    "node_modules/@types/graphql": {
+      "version": "14.5.0",
+      "resolved": "https://registry.npmjs.org/@types/graphql/-/graphql-14.5.0.tgz",
+      "integrity": "sha512-MOkzsEp1Jk5bXuAsHsUi6BVv0zCO+7/2PTiZMXWDSsMXvNU6w/PLMQT2vHn8hy2i0JqojPz1Sz6rsFjHtsU0lA==",
+      "deprecated": "This is a stub types definition. graphql provides its own type definitions, so you do not need this installed.",
+      "dev": true,
+      "dependencies": {
+        "graphql": "*"
       }
     },
     "node_modules/@types/http-errors": {
@@ -3342,9 +3615,9 @@
       "dev": true
     },
     "node_modules/@types/node": {
-      "version": "20.6.2",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-20.6.2.tgz",
-      "integrity": "sha512-Y+/1vGBHV/cYk6OI1Na/LHzwnlNCAfU3ZNGrc1LdRe/LAIbdDPTTv/HU3M7yXN448aTVDq3eKRm2cg7iKLb8gw=="
+      "version": "20.6.3",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-20.6.3.tgz",
+      "integrity": "sha512-HksnYH4Ljr4VQgEy2lTStbCKv/P590tmPe5HqOnv9Gprffgv5WXAY+Y5Gqniu0GGqeTCUdBnzC3QSrzPkBkAMA=="
     },
     "node_modules/@types/node-fetch": {
       "version": "2.6.5",
@@ -3781,9 +4054,9 @@
       }
     },
     "node_modules/browserslist": {
-      "version": "4.21.10",
-      "resolved": "https://registry.npmjs.org/browserslist/-/browserslist-4.21.10.tgz",
-      "integrity": "sha512-bipEBdZfVH5/pwrvqc+Ub0kUPVfGUhlKxbvfD+z1BDnPEO/X98ruXGA1WP5ASpAFKan7Qr6j736IacbZQuAlKQ==",
+      "version": "4.21.11",
+      "resolved": "https://registry.npmjs.org/browserslist/-/browserslist-4.21.11.tgz",
+      "integrity": "sha512-xn1UXOKUz7DjdGlg9RrUr0GGiWzI97UQJnugHtH0OLDfJB7jMgoIkYvRIEO1l9EeEERVqeqLYOcFBW9ldjypbQ==",
       "dev": true,
       "funding": [
         {
@@ -3800,10 +4073,10 @@
         }
       ],
       "dependencies": {
-        "caniuse-lite": "^1.0.30001517",
-        "electron-to-chromium": "^1.4.477",
+        "caniuse-lite": "^1.0.30001538",
+        "electron-to-chromium": "^1.4.526",
         "node-releases": "^2.0.13",
-        "update-browserslist-db": "^1.0.11"
+        "update-browserslist-db": "^1.0.13"
       },
       "bin": {
         "browserslist": "cli.js"
@@ -4427,6 +4700,18 @@
         "node": ">=8"
       }
     },
+    "node_modules/detect-libc": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/detect-libc/-/detect-libc-1.0.3.tgz",
+      "integrity": "sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==",
+      "dev": true,
+      "bin": {
+        "detect-libc": "bin/detect-libc.js"
+      },
+      "engines": {
+        "node": ">=0.10"
+      }
+    },
     "node_modules/diff": {
       "version": "4.0.2",
       "resolved": "https://registry.npmjs.org/diff/-/diff-4.0.2.tgz",
@@ -4485,9 +4770,9 @@
       "integrity": "sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow=="
     },
     "node_modules/electron-to-chromium": {
-      "version": "1.4.525",
-      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.525.tgz",
-      "integrity": "sha512-GIZ620hDK4YmIqAWkscG4W6RwY6gOx1y5J6f4JUQwctiJrqH2oxZYU4mXHi35oV32tr630UcepBzSBGJ/WYcZA==",
+      "version": "1.4.527",
+      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.527.tgz",
+      "integrity": "sha512-EafxEiEDzk2aLrdbtVczylHflHdHkNrpGNHIgDyA63sUQLQVS2ayj2hPw3RsVB42qkwURH+T2OxV7kGPUuYszA==",
       "dev": true
     },
     "node_modules/emoji-regex": {
@@ -4937,9 +5222,9 @@
       }
     },
     "node_modules/get-tsconfig": {
-      "version": "4.7.1",
-      "resolved": "https://registry.npmjs.org/get-tsconfig/-/get-tsconfig-4.7.1.tgz",
-      "integrity": "sha512-sLtd6Bcwbi9IrAow/raCOTE9pmhvo5ksQo5v2lApUGJMzja64MUYhBp0G6X1S+f7IrBPn1HP+XkS2w2meoGcjg==",
+      "version": "4.7.2",
+      "resolved": "https://registry.npmjs.org/get-tsconfig/-/get-tsconfig-4.7.2.tgz",
+      "integrity": "sha512-wuMsz4leaj5hbGgg4IvDU0bqJagpftG5l5cXIAvo8uZrqn0NJqwtfupTN00VnkQJPcIRrxYrm1Ue24btpCha2A==",
       "dev": true,
       "dependencies": {
         "resolve-pkg-maps": "^1.0.0"
@@ -5087,17 +5372,6 @@
       },
       "peerDependencies": {
         "graphql": "14 - 16"
-      }
-    },
-    "node_modules/graphql-subscriptions": {
-      "version": "2.0.0",
-      "resolved": "https://registry.npmjs.org/graphql-subscriptions/-/graphql-subscriptions-2.0.0.tgz",
-      "integrity": "sha512-s6k2b8mmt9gF9pEfkxsaO1lTxaySfKoEJzEfmwguBbQ//Oq23hIXCfR1hm4kdh5hnR20RdwB+s3BCb+0duHSZA==",
-      "dependencies": {
-        "iterall": "^1.3.0"
-      },
-      "peerDependencies": {
-        "graphql": "^15.7.2 || ^16.0.0"
       }
     },
     "node_modules/graphql-tag": {
@@ -5541,11 +5815,6 @@
       "peerDependencies": {
         "ws": "*"
       }
-    },
-    "node_modules/iterall": {
-      "version": "1.3.0",
-      "resolved": "https://registry.npmjs.org/iterall/-/iterall-1.3.0.tgz",
-      "integrity": "sha512-QZ9qOMdF+QLHxy1QIpUHUU1D5pS2CG2P69LF6L6CPjPYA/XMOmKV3PZpawHoAjHNyB0swdVTRxdYT4tbBbxqwg=="
     },
     "node_modules/jiti": {
       "version": "1.20.0",
@@ -6047,6 +6316,12 @@
       "version": "3.1.1",
       "resolved": "https://registry.npmjs.org/node-abort-controller/-/node-abort-controller-3.1.1.tgz",
       "integrity": "sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ=="
+    },
+    "node_modules/node-addon-api": {
+      "version": "7.0.0",
+      "resolved": "https://registry.npmjs.org/node-addon-api/-/node-addon-api-7.0.0.tgz",
+      "integrity": "sha512-vgbBJTS4m5/KkE16t5Ly0WW9hz46swAstv0hYYwMtbG7AznRhNyfLRe8HZAiWIpcHzoO7HxhLuBQj9rJ/Ho0ZA==",
+      "dev": true
     },
     "node_modules/node-fetch": {
       "version": "2.7.0",
@@ -7451,9 +7726,9 @@
       }
     },
     "node_modules/update-browserslist-db": {
-      "version": "1.0.11",
-      "resolved": "https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.0.11.tgz",
-      "integrity": "sha512-dCwEFf0/oT85M1fHBg4F0jtLwJrutGoHSQXCh7u4o2t1drG+c0a9Flnqww6XUKSfQMPpJBRjU8d4RXB09qtvaA==",
+      "version": "1.0.13",
+      "resolved": "https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.0.13.tgz",
+      "integrity": "sha512-xebP81SNcPuNpPP3uzeW1NYXxI3rxyJzF3pD6sH4jE7o/IX+WtSpwnVU+qIsDPyk0d3hmFQ7mjqc6AtV604hbg==",
       "dev": true,
       "funding": [
         {

@@ -37,12 +37,15 @@ export const useStatusSubscription = () => {
   useSubscription(statusSubscription, {
     onData: ({client, data}) => {
       const newStatus = data.data.statusChanged;
-      console.log('new status', newStatus);
       client.cache.updateQuery(
         {query: fullStatusQuery},
         () => ({status: newStatus}));
     },
   });
+
+  if (error) {
+    console.log('Status sub error', error);
+  }
 
   return {
     loading,
