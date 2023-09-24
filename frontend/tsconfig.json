@@ -1,7 +1,6 @@
 {
     "extends": "@tsconfig/node18/tsconfig.json",
     "compilerOptions": {
-      "rootDir": "src",
       "outDir": "dist",
       "module": "ES2022",
       "target": "ES5",
@@ -11,7 +10,8 @@
       "declaration": true,
       "sourceMap": true,
       "esModuleInterop": true,
-      "lib": ["DOM"]
+      "lib": ["DOM"],
+      "types": ["vite/client"],
     },
     "ts-node": {
       "esm": true,

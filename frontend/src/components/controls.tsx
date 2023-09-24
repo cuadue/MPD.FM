@@ -1,11 +1,13 @@
 import React, { MouseEventHandler } from "react";
 import { State } from "../generated/graphql";
 import { useStatusSubscription, useStop } from "../graphql/hooks";
+import stopImage from "../assets/pause.svg"
+import './controls.css'
 
 const Container: React.FC<{
     children: React.ReactNode
 }> = ({children}) => {
-    return <div className='controls'>
+    return <div className='controls-container'>
         {children}
     </div>
 };
@@ -42,11 +44,11 @@ const Playing: React.FC<{
         console.log('Failed to stop', error);
     }
     return <Container>
-        <img src={logoUrl} height='100px' width='100px'
-             alt={`{stationName} ({stationDescription)}`} />
+        <img src={stopImage}  onClick={clickHandler} alt='Pause' />
+        <img src={logoUrl}
+             alt={`${stationName} (${stationDescription})`} />
         <b>{stationName}</b> &mdash; <i>{title}</i>
         <br></br>
-        <button onClick={clickHandler}>Stop</button>
     </Container>
 }
 

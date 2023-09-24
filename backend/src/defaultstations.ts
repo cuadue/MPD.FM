@@ -52,7 +52,7 @@ export const defaultStations = [
     {   "id": 5,
         "station": "KPSU",
         "desc": "Portland State University",
-        "logo": "https://i0.wp.com/kpsu.org/wp-content/uploads/2018/12/KPSU_LOGO_resized.jpg",
+        "logo": "https://i0.wp.com/kpsu.org/wp-content/uploads/2017/08/logo_footer.jpg",
         "stream": "https://streamer.radio.co/scad0cc067/listen"
     },
     {   "id": 6,
