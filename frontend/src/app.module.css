@@ -1,0 +1,33 @@
+:root {
+    --header-height: max(6rem, 10vh);
+    --shadow: 4px;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #ddd;
+    border: 2px solid black;
+}
+
+.header {
+    height: var(--header-height);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    overflow: hidden;
+    border: 2px solid black;
+    box-shadow: var(--shadow) var(--shadow) black;
+}
+
+.content {
+    margin-top: calc(var(--shadow) + var(--header-height));
+}

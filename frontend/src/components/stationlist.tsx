@@ -3,6 +3,7 @@ import { useQuery } from '@apollo/client';
 import type { Station as StationModel } from '../generated/graphql';
 import { allStationsQuery } from '../graphql/queries';
 import { usePlay } from '../graphql/hooks';
+import style from './stationlist.module.css'
 
 const Station: React.FC<StationModel> = ({ id, description, logoUrl, name, streamUrl}) => {
     const {loading, error, play} = usePlay();
@@ -17,9 +18,14 @@ const Station: React.FC<StationModel> = ({ id, description, logoUrl, name, strea
         console.log('Failed to play', error);
     }
 
-    return <div className='station'>
-        <button onClick={handleClick}>Play</button>
-        {name}
+    return <div className={style.station} onClick={handleClick}>
+      	<div className={style.logo}>
+            <img src={logoUrl} />
+        </div>
+        <div className={style.details}>
+            <div className={style.title}>{name}</div>
+            <div>{description}</div>
+        </div>
     </div>
 };
 
@@ -33,7 +39,7 @@ export const StationList: React.FC = () => {
     }
     const stations = [...data.stations];
     stations.sort((a, b) => a.sortOrder - b.sortOrder);
-    return <div className='station-list'>
+    return <div className={style.stationList}>
         {stations.map(s => 
             <Station key={s.id} {...s}></Station>
         )}

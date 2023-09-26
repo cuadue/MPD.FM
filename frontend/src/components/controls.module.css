@@ -1,0 +1,26 @@
+.container {
+    flex-grow: 1;
+    --gap: max(2vw, 2vh);
+    background-color: white;
+
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+    padding: 2vh 2vw;
+}
+
+.container .logo,
+.container .actionButton {
+    max-height: calc(var(--header-height) - var(--gap));
+    flex-shrink: 1;
+    flex-grow: 0;
+}
+
+.actionButton.loading {
+    opacity: 50%;
+}
+
+.title {
+    flex-grow: 1;
+    align-self: center;
+}

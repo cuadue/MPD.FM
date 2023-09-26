@@ -1,0 +1,43 @@
+.stationList {
+    padding: 10px;
+    column-count: auto;
+    overflow-y: auto;
+}
+
+.station {
+    min-height: 3lh;
+    border: 2px solid black;
+    box-shadow: 4px 4px black;
+    padding: 10px;
+    margin: 5px;
+    background-color: white;
+    display: flex;
+    break-inside: avoid;
+    break-after: avoid;
+}
+
+.station:hover {
+    background: #ceaee6;
+}
+
+.logo {
+    flex-basis: 4em;
+    align-self: center;
+    text-align: center;
+}
+
+.logo img {
+    max-height: 4em;
+    width: auto;
+    max-width: 4em;
+}
+
+.details {
+    flex-grow: 1;
+    align-self: center;
+    padding-left: 15px;
+}
+
+.title {
+    font-weight: bold;
+}

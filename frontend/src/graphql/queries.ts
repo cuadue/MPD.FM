@@ -5,6 +5,7 @@ const fullStatusFragment = graphql(`
     state
     errorMessage
     station {
+      id
       name
       logoUrl
       description

@@ -5,11 +5,11 @@ import { Kind, OperationTypeNode } from 'graphql';
 import {createClient as createWsClient} from 'graphql-ws';
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:8080/graphql',
+  uri: window.location.origin + '/graphql',
 });
 
 const wsLink = new GraphQLWsLink(createWsClient({
-    url: 'ws://localhost:8080/graphql',
+    url: `ws://${window.location.host}/graphql`,
 }));
 
 const isSubscription = (op: Operation): boolean => {

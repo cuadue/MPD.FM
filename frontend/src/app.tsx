@@ -1,12 +1,9 @@
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { apolloClient } from './graphql/client';
-import { useState } from 'react';
-import { useParams, Routes, Route } from 'react-router';
-import { Link, useNavigate } from 'react-router-dom';
 import { StationList } from './components/stationlist';
 import { Controls } from './components/controls';
-import { useStatusSubscription } from './graphql/hooks';
+import style from './app.module.css'
 
 const ErrorMessage: React.FC<{
     message: string
@@ -16,9 +13,11 @@ const ErrorMessage: React.FC<{
 
 export const App: React.FC = () => {
     return <ApolloProvider client={apolloClient}>
-        <main>
-            <StationList></StationList>
-            <Controls></Controls>
-        </main>
+    <div className={style.content}>
+        <StationList></StationList>
+    </div>
+    <div className={style.header}>
+        <Controls></Controls>
+    </div>
     </ApolloProvider>
 };

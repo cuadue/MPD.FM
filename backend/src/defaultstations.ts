@@ -40,7 +40,7 @@ export const defaultStations = [
     {   "id": 4,
         "station": "KCSM",
         "desc": "Jazz 91 College of San Mateo",
-        "logo": "https://upload.wikimedia.org/wikipedia/en/3/33/KCSMTV.jpg",
+        "logo": "https://i1.wp.com/kcsm.org/jazz91/blog/wp-content/uploads/2013/09/Jazz91.gif",
         "stream": "http://ice5.securenetsystems.net/KCSM"
     },
     {   "id": 2,
