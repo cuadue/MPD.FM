@@ -12,7 +12,6 @@ type DisplayStation = {
   name?: string
 };
 
-
 const Logo: React.FC<{station: DisplayStation}> = ({station}) => 
     <img className={style.logo} src={station?.logoUrl}
         alt={`${station?.name} (${station?.description})`} />
@@ -22,45 +21,30 @@ const ActionButton: React.FC<{
     alt: string
     onClick: () => void
     loading: boolean
-}> =
-    ({src, alt, onClick, loading}) =>
-        <img className={`${style.actionButton} ${loading && 'loading'}`}
-            src={src} alt={alt}
-            onClick={onClick} />
+}> = ({src, alt, onClick, loading}) =>
+    <img className={`${style.actionButton} ${loading && 'loading'}`}
+        src={src} alt={alt}
+        onClick={onClick} />
 
 const Container: React.FC<{
+    message: string
     children: React.ReactNode
-}> = ({children}) => {
-    return <div className={style.container}>
+}> = ({message, children}) => <>
+    <div className={style.container}>
         {children}
     </div>
-};
+    <div className={style.statusMessage}>{message}</div>
+</>
 
-const Connecting: React.FC = () => {
-    return <Container>
-        Connecting
+const Connecting: React.FC = () =>
+    <Container message='Connecting...'>
     </Container>
-};
 
 const Error: React.FC<{
     message: string
-}> = ({message}) => {
-    return <Container>
-        Error: {message}
+}> = ({message}) =>
+    <Container message={`Error: ${message}`}>
     </Container>
-};
-
-const Ready: React.FC<{
-    station: DisplayStation
-    title?: string
-    children: React.ReactNode
-}> = ({station, title, children}) => {
-    return <Container>
-        {children}
-        <div className={style.title}>{title}</div>
-        <Logo station={station} />
-    </Container>
-}
 
 const Playing: React.FC<{
     station: DisplayStation
@@ -70,9 +54,11 @@ const Playing: React.FC<{
     if (error) {
         return <Error message={error.message} />
     }
-    return <Ready station={station} title={title}>
+    return <Container message={`Now Playing: ${station.name}`}>
         <ActionButton loading={loading} src={stopImage} alt='Pause' onClick={stop} />
-    </Ready>
+        <div className={style.title}>{title}</div>
+        <Logo station={station} />
+    </Container>
 }
 
 const Stopped: React.FC<{
@@ -83,9 +69,10 @@ const Stopped: React.FC<{
         return <Error message={error.message} />
     }
     const onClick = () => play(station.id);
-    return <Ready station={station}>
+    return <Container message={`Stopped: ${station.name}`}>
         <ActionButton loading={loading} src={playImage} alt='Resume' onClick={onClick} />
-    </Ready>
+        <Logo station={station} />
+    </Container>
 }
 
 export const Controls: React.FC = () => {
