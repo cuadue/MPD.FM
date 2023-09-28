@@ -58,11 +58,15 @@ export const resolvers: Resolvers = {
     },
     addStation: (parent, {input}, {radioClient}) => 
       radioClient.createStation(input),
+    setVolume: async (parent, {input}, {radioClient}) => {
+      await throwError(radioClient.sendVolume(input));
+      return input;
+    },
   },
   Subscription: {
     statusChanged: {
       resolve: (payload: RadioStatus) => payload,
-      subscribe: (root, args, {radioClient}): AsyncIterable<RadioStatus> => 
+      subscribe: async (root, args, {radioClient}): Promise<AsyncIterable<RadioStatus>> =>
         radioClient.radioStatusAsyncIterable(),
     },
   },

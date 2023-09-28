@@ -27,8 +27,8 @@ export const defaultStations = [
     {   "id": 1, 
         "station": "KDFC",
         "desc": "San Francisco Classical",
-        "logo": "https://upload.wikimedia.org/wikipedia/en/5/53/KDFCFM.jpg",
-        "stream": "http://18703.live.streamtheworld.com:80/KDFCFMAAC_SC"
+        "logo": "https://www.kdfc.com/wp-content/uploads/2022/04/cropped-KDFC-favicon-1-192x192.png",
+        "stream": "https://18423.live.streamtheworld.com:443/KDFCFM_SC"
     },
     {
         "id": 9,

@@ -38,7 +38,7 @@ export const StationList: React.FC = () => {
         return <div>Error: {error.message}</div>
     }
     const stations = [...data.stations];
-    stations.sort((a, b) => a.sortOrder - b.sortOrder);
+    stations.sort((b, a) => a.sortOrder - b.sortOrder);
     return <div className={style.stationList}>
         {stations.map(s => 
             <Station key={s.id} {...s}></Station>

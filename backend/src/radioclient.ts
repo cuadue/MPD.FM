@@ -33,6 +33,10 @@ interface RadioClientEvents {
     statusUpdated: (status: RadioStatus) => void
 }
 
+const arraysIntersect = <T>(needles: T[], haystack: T[]): boolean => {
+    return needles.reduce((acc, needle) => acc || haystack.indexOf(needle) >= 0, false);
+};
+
 export class RadioClient extends TypedEmitter<RadioClientEvents> {
     mpdClient: MpdClient = new MpdClient;
     state: State = new Error('uninitialized');
@@ -54,18 +58,15 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
             this.setRadioState(state);
         });
 
-        this.mpdClient.on('subsystemsChanged', async (systems: Array<string>) => {
-            const systemOfInterest = ['playlist', 'player', 'mixer'].reduce(
-                (acc, name) => acc || systems.indexOf(name) >= 0,
-                false);
-
-            if (systemOfInterest) {
-                const data = await this.getStatusRaw();
-                if (data instanceof Error) {
-                    this.setRadioState(data);
-                } else {
-                    this.setStatus(this.parseStatus(data));
-                }
+        this.mpdClient.on('subsystemsChanged', async (subsystems: Array<string>) => {
+            if (!arraysIntersect(['playlist', 'player', 'mixer'], subsystems)) {
+                return;
+            }
+            const data = await this.getStatusRaw();
+            if (data instanceof Error) {
+                this.setRadioState(data);
+            } else {
+                this.setStatus(this.parseStatus(data));
             }
         });
 
@@ -117,14 +118,11 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
             ["add", station.streamUrl],
             "play",
         ]);
-        if (result instanceof Error) return result;
-        else return null;
+        return (result instanceof Error) ? result : null;
     }
 
     async sendVolume(volume: number) {
-        return this.mpdClient.sendCommands([
-            ["volume", volume.toString()],
-        ]);
+        return this.mpdClient.sendCommand(['setvol', volume.toString()]);
     }
 
     async sendPlay() {
@@ -137,8 +135,7 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
 
     private async getStatusRaw(): Promise<KeyValuePairs | Error> {
         const msg = await this.mpdClient.sendCommands(['status', 'currentsong']);
-        if (msg instanceof Error) return msg;
-        return parseKeyValueMessage(msg);
+        return (msg instanceof Error) ? msg : parseKeyValueMessage(msg);
     }
 
     private parseStatus(data: KeyValuePairs): RadioStatus {
@@ -158,27 +155,27 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
 
     async getStatus(): Promise<RadioStatus | Error> {
         const data = await this.getStatusRaw();
-        if (data instanceof Error) return data;
-        return this.parseStatus(data);
+        return (data instanceof Error) ? data : this.parseStatus(data);
     }
 
-    radioStatusAsyncIterable(): AsyncIterable<RadioStatus> {
-        var loop = true;
+    async radioStatusAsyncIterable(): Promise<AsyncIterable<RadioStatus>> {
         var resolve: null | ((status: RadioStatus) => void);
 
-        const listener = (status: RadioStatus) => {
-            if (resolve) {
-                resolve(status);
-                resolve = null;
-            }
-        };
+        const toRadioStatus = (x: RadioStatus | Error): RadioStatus =>
+            (x instanceof Error) ? {radioState: x, playState: x} : x;
+
+        const listener = (status: RadioStatus | Error) =>
+            resolve && resolve(toRadioStatus(status));
 
         this.on('statusUpdated', listener);
         const cleanup = () => this.off('statusUpdated', listener);
 
+        const initial = await this.getStatus();
+
         async function* it() {
             try {
-                while (loop) {
+                yield toRadioStatus(initial);
+                while (true) {
                     yield await new Promise<RadioStatus>(res => resolve = res);
                 }
             } finally {

@@ -1,13 +1,14 @@
-import React, { MouseEventHandler } from "react";
+import React, { useEffect, useState } from "react";
 import { State } from "../generated/graphql";
-import { usePlay, useStatusSubscription, useStop } from "../graphql/hooks";
+import { usePlay, useStatusSubscription, useStop, useSetVolume } from "../graphql/hooks";
 import stopImage from "../assets/pause.svg"
 import playImage from "../assets/play.svg"
 import style from './controls.module.css'
+import Slider from 'react-slider';
 
 type DisplayStation = {
   description?: string
-  id: string
+  id?: string
   logoUrl?: string
   name?: string
 };
@@ -46,10 +47,34 @@ const Error: React.FC<{
     <Container message={`Error: ${message}`}>
     </Container>
 
+const VolumeSlider: React.FC<{
+    volume: number
+}> = (props) => {
+    const [state, setState] = useState(0);
+    const {setVolume, error, loading} = useSetVolume();
+
+    useEffect(() => setState(props.volume), [props.volume]);
+
+    return <Slider
+        value={state}
+        disabled={loading}
+        className={style.volumeSlider}
+        thumbClassName={style.volumeThumb}
+        trackClassName={style.volumeTrack}
+        thumbActiveClassName={style.active}
+        renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+        onAfterChange={async (v) => {
+            setState(v);
+            await setVolume(v);
+        }}
+    />
+};
+
 const Playing: React.FC<{
+    volume: number
     station: DisplayStation
     title?: string
-}> = ({title, station}) => {
+}> = ({title, station, volume}) => {
     const {loading, error, stop} = useStop();
     if (error) {
         return <Error message={error.message} />
@@ -58,12 +83,14 @@ const Playing: React.FC<{
         <ActionButton loading={loading} src={stopImage} alt='Pause' onClick={stop} />
         <div className={style.title}>{title}</div>
         <Logo station={station} />
+        <VolumeSlider volume={volume}/>
     </Container>
 }
 
 const Stopped: React.FC<{
+    volume: number
     station?: DisplayStation
-}> = ({station}) => {
+}> = ({station, volume}) => {
     const {loading, error, play} = usePlay();
     if (error) {
         return <Error message={error.message} />
@@ -72,6 +99,7 @@ const Stopped: React.FC<{
     return <Container message={`Stopped: ${station.name}`}>
         <ActionButton loading={loading} src={playImage} alt='Resume' onClick={onClick} />
         <Logo station={station} />
+        <VolumeSlider volume={volume}/>
     </Container>
 }
 
@@ -84,15 +112,13 @@ export const Controls: React.FC = () => {
     if (error) {
         return <Error message={error.message} />
     }
-    console.log(status.station);
-
     switch (status.state) {
         case State.Connecting: return <Connecting />;
         case State.Error: return <Error message={status.errorMessage} />;
         case State.Playing:
-            return <Playing station={status.station} title={status.title} />;
+            return <Playing volume={status.volume} station={status.station} title={status.title} />;
         case State.Paused:
         case State.Stopped:
-            return <Stopped station={status.station} />;
+            return <Stopped volume={status.volume} station={status.station} />;
     }
 };

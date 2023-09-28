@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
-import { fullStatusQuery, playMutation, statusSubscription, stopMutation } from './queries';
+import { fullStatusQuery, playMutation, setVolumeMutation, statusSubscription, stopMutation } from './queries.js';
 import { State } from '../generated/graphql';
 
 export const usePlay = () => {
@@ -33,23 +33,26 @@ export const useStop = () => {
 
 
 export const useStatusSubscription = () => {
-  const {loading, error, data} = useQuery(fullStatusQuery);
-  useSubscription(statusSubscription, {
-    onData: ({client, data}) => {
-      const newStatus = data.data.statusChanged;
-      client.cache.updateQuery(
-        {query: fullStatusQuery},
-        () => ({status: newStatus}));
-    },
-  });
-
-  if (error) {
-    console.log('Status sub error', error);
-  }
+  const {loading, error, data} = useSubscription(statusSubscription);
 
   return {
     loading,
     error,
-    status: data?.status ?? {state: State.Connecting}
+    status: data?.statusChanged ?? {state: State.Connecting}
   };
 }
+
+export const useSetVolume = () => {
+  const [mutate, {loading, error}] = useMutation(setVolumeMutation);
+  const setVolume = async (volume: number) => {
+    try {
+      const {data: setVolume} = await mutate({
+        variables: {input: volume}
+      });
+      return setVolume;
+    } catch (err) {
+      return err;
+    }
+  }
+  return {setVolume, loading, error};
+};

@@ -35,3 +35,32 @@
     width: 100%;
     text-align:center;
 }
+
+.volumeSlider {
+    flex-grow: 1;
+    height: 2em;
+    background-color:aqua;
+    border-radius: 1em;
+}
+
+.volumeThumb {
+    background-color:coral;
+    border-radius: 50%;
+    line-height: 2em;
+    width: 2em;
+    user-select: none;
+    cursor: ew-resize;
+    text-align: center;
+}
+
+.volumeThumb.active {
+    margin: -4px;
+    border: 4px solid green;
+}
+
+.volumeTrack {
+    background-color:deeppink;
+    height: 1em;
+    margin: 0.5em;
+    border-radius: 0.5em;
+}

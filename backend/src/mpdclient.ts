@@ -127,12 +127,15 @@ export class MpdClient extends TypedEmitter<MpdClientEvents> {
       if (response instanceof Error) {
         return this.emit('stateChanged', response);
       }
-      this.emit('subsystemsChanged', response.split("\n")
+      const subsystems = response.split("\n")
         .map(line => {
           const m = /changed: (\w+)/.exec(line);
           return m ? m[1] : null;
         })
-        .filter(system => system != null));
+        .filter(system => system != null);
+      if (subsystems.length > 0) {
+        this.emit('subsystemsChanged', subsystems);
+      }
     });
   }
 

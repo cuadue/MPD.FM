@@ -52,6 +52,12 @@ export const stopMutation = graphql(`
   }
 `);
 
+export const setVolumeMutation = graphql(`
+  mutation SetVolume($input: Int) {
+    setVolume(input: $input)
+  }
+`);
+
 export const statusSubscription = graphql(`
   subscription StatusSubscription {
     statusChanged {
