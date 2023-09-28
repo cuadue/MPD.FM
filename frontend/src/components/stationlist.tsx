@@ -1,24 +1,22 @@
 import React, { MouseEventHandler } from 'react';
 import { useQuery } from '@apollo/client';
-import type { Station as StationModel } from '../generated/graphql';
+import { State, FullStatusFragment } from '../generated/graphql';
 import { allStationsQuery } from '../graphql/queries';
-import { usePlay } from '../graphql/hooks';
+import { usePlayControls } from '../graphql/hooks';
 import style from './stationlist.module.css'
 
-const Station: React.FC<StationModel> = ({ id, description, logoUrl, name, streamUrl}) => {
-    const {loading, error, play} = usePlay();
-    const handleClick: MouseEventHandler = async () => {
-        const state = await play(id);
-        console.log('state after play', state);
-    }
-    if (loading) {
-        console.log('Starting to play...');
-    }
-    if (error) {
-        console.log('Failed to play', error);
-    }
+const Station: React.FC<{
+    station: FullStatusFragment['station'],
+    activeStation: boolean
+    nowPlaying: boolean
+}> = ({station, activeStation, nowPlaying}) => {
+    const { id, description, logoUrl, name} = station;
 
-    return <div className={style.station} onClick={handleClick}>
+    const {loading, error, play, stop} = usePlayControls(id);
+    const handleClick: MouseEventHandler = () =>
+        nowPlaying ? stop() : play();
+
+    return <div className={`${style.station} ${activeStation && style.activeStation}`} onClick={handleClick}>
       	<div className={style.logo}>
             <img src={logoUrl} />
         </div>
@@ -29,7 +27,7 @@ const Station: React.FC<StationModel> = ({ id, description, logoUrl, name, strea
     </div>
 };
 
-export const StationList: React.FC = () => {
+export const StationList: React.FC<{status: FullStatusFragment}> = ({status}) => {
     const {loading, error, data} = useQuery(allStationsQuery);
     if (loading) {
         return <div>Loading...</div>
@@ -40,8 +38,13 @@ export const StationList: React.FC = () => {
     const stations = [...data.stations];
     stations.sort((b, a) => a.sortOrder - b.sortOrder);
     return <div className={style.stationList}>
-        {stations.map(s => 
-            <Station key={s.id} {...s}></Station>
+        {stations.map(station => {
+                const activeStation = status.station?.id === station.id;
+                const nowPlaying = activeStation && status.state === State.Playing;
+                return <Station station={station} key={station.id}
+                    activeStation={activeStation}
+                    nowPlaying={nowPlaying}/>
+            }
         )}
     </div>
 }

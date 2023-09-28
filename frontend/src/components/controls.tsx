@@ -1,51 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { State } from "../generated/graphql";
-import { usePlay, useStatusSubscription, useStop, useSetVolume } from "../graphql/hooks";
+import { State, FullStatusFragment } from "../generated/graphql";
+import { useSetVolume, usePlayControls } from "../graphql/hooks";
+import loadingImage from "../assets/pause.svg"
+import errorImage from "../assets/pause.svg"
 import stopImage from "../assets/pause.svg"
 import playImage from "../assets/play.svg"
 import style from './controls.module.css'
 import Slider from 'react-slider';
+import { ApolloError } from "@apollo/client";
 
-type DisplayStation = {
-  description?: string
-  id?: string
-  logoUrl?: string
-  name?: string
-};
+type Station = FullStatusFragment['station'];
+type Status = FullStatusFragment;
 
-const Logo: React.FC<{station: DisplayStation}> = ({station}) => 
+const Logo: React.FC<{station: Station}> = ({station}) => 
     <img className={style.logo} src={station?.logoUrl}
         alt={`${station?.name} (${station?.description})`} />
 
 const ActionButton: React.FC<{
-    src: string
-    alt: string
-    onClick: () => void
+    status: Status
     loading: boolean
-}> = ({src, alt, onClick, loading}) =>
-    <img className={`${style.actionButton} ${loading && 'loading'}`}
-        src={src} alt={alt}
-        onClick={onClick} />
+}> = ({status, loading}) => {
+    const {play, stop, loading: controlsLoading, error} = usePlayControls(status.station?.id);
+    loading ||= controlsLoading;
 
-const Container: React.FC<{
-    message: string
-    children: React.ReactNode
-}> = ({message, children}) => <>
-    <div className={style.container}>
-        {children}
-    </div>
-    <div className={style.statusMessage}>{message}</div>
-</>
+    const className = `${style.actionButton} ${loading && 'loading'}`;
 
-const Connecting: React.FC = () =>
-    <Container message='Connecting...'>
-    </Container>
-
-const Error: React.FC<{
-    message: string
-}> = ({message}) =>
-    <Container message={`Error: ${message}`}>
-    </Container>
+    switch (status.state) {
+    case State.Connecting:
+        return <img className={className} src={loadingImage} alt='Connecting' />;
+    case State.Paused:
+        return <img className={className} src={playImage} alt='Paused' onClick={play} />
+    case State.Stopped:
+        return <img className={className} src={playImage} alt='Stopped' onClick={play} />
+    case State.Playing:
+        return <img className={className} src={stopImage} alt='Paused' onClick={stop} />
+    case State.Error:
+    default:
+        return <img className={className} src={errorImage} alt='Error' />;
+    }
+}
 
 const VolumeSlider: React.FC<{
     volume: number
@@ -70,55 +63,42 @@ const VolumeSlider: React.FC<{
     />
 };
 
-const Playing: React.FC<{
-    volume: number
-    station: DisplayStation
-    title?: string
-}> = ({title, station, volume}) => {
-    const {loading, error, stop} = useStop();
+const stateText = ({status, loading, error}: {
+    status: Status
+    loading: boolean
+    error: ApolloError
+}): string => {
     if (error) {
-        return <Error message={error.message} />
+        return error.message;
     }
-    return <Container message={`Now Playing: ${station.name}`}>
-        <ActionButton loading={loading} src={stopImage} alt='Pause' onClick={stop} />
-        <div className={style.title}>{title}</div>
-        <Logo station={station} />
-        <VolumeSlider volume={volume}/>
-    </Container>
-}
-
-const Stopped: React.FC<{
-    volume: number
-    station?: DisplayStation
-}> = ({station, volume}) => {
-    const {loading, error, play} = usePlay();
-    if (error) {
-        return <Error message={error.message} />
-    }
-    const onClick = () => play(station.id);
-    return <Container message={`Stopped: ${station.name}`}>
-        <ActionButton loading={loading} src={playImage} alt='Resume' onClick={onClick} />
-        <Logo station={station} />
-        <VolumeSlider volume={volume}/>
-    </Container>
-}
-
-export const Controls: React.FC = () => {
-    const {loading, error, status} = useStatusSubscription();
-
     if (loading) {
-        return <div>Loading...</div>
+        return 'Loading...'; 
     }
-    if (error) {
-        return <Error message={error.message} />
-    }
+    const errorMessage = status.errorMessage || 'Mystery problem!';
+    const stationName = status.station?.name || 'Mystery station!';
     switch (status.state) {
-        case State.Connecting: return <Connecting />;
-        case State.Error: return <Error message={status.errorMessage} />;
-        case State.Playing:
-            return <Playing volume={status.volume} station={status.station} title={status.title} />;
-        case State.Paused:
-        case State.Stopped:
-            return <Stopped volume={status.volume} station={status.station} />;
+        case State.Connecting: return 'Connecting...';
+        case State.Error: return `Error: ${errorMessage}`;
+        case State.Playing: return `Now Playing: ${stationName}`;
+        case State.Stopped: return 'Stopped';
+        case State.Paused: return `Paused: ${stationName}`;
+        default: return 'What is happening?';
     }
+}
+
+export const Controls: React.FC<{
+    loading: boolean
+    error: ApolloError
+    status: Status
+}> = ({loading, error, status}) => {
+    return <>
+        <div className={style.container}>
+            <ActionButton loading={loading} status={status} />
+            <Logo station={status.station} />
+            <VolumeSlider volume={status.volume}/>
+        </div>
+        <div className={style.statusMessage}>
+            {stateText({status, error, loading})}
+        </div>
+    </>
 };

@@ -30,7 +30,7 @@
 }
 
 .station:hover {
-    background: #ceaee6;
+    border-color: #ceaee6;
     cursor: pointer;
 }
 
@@ -54,4 +54,8 @@
 
 .title {
     font-weight: bold;
+}
+
+.activeStation {
+    background-color:  coral;
 }
