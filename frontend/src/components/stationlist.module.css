@@ -30,7 +30,6 @@
 }
 
 .station:hover {
-    border-color: #ceaee6;
     cursor: pointer;
 }
 
@@ -57,5 +56,6 @@
 }
 
 .activeStation {
-    background-color:  coral;
+    padding: 5px;
+    border-width: 7px;
 }

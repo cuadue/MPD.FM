@@ -30,7 +30,6 @@
     "@babel/preset-env": "^7.22.10",
     "@babel/preset-react": "^7.22.5",
     "@cuadue/mpd": "^2.1.0",
-    "@reduxjs/toolkit": "^1.9.5",
     "body-parser": "^1.20.2",
     "css-loader": "^6.8.1",
     "graphql": "^16.8.1",
@@ -45,7 +44,6 @@
     "source-map-loader": "^4.0.1",
     "source-map-support": "^0.5.21",
     "style-loader": "^3.3.3",
-    "tiny-typed-emitter": "^2.1.0",
     "vite": "^4.4.9",
     "ws": "^8.14.1"
   },
@@ -68,6 +66,7 @@
     "babel-loader": "^9.1.3",
     "babel-plugin-source-map-support": "^2.2.0",
     "concurrently": "^8.0.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "nodemon": "^2.0.22",
     "postcss-load-config": "^4.0.1",
     "postcss-plugin": "^1.0.0",

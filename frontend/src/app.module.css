@@ -1,5 +1,5 @@
 :root {
-    --header-height: max(6rem, min(12rem, 10vh));
+    --header-height: max(10rem, min(16rem, 15vh));
     --shadow: 4px;
 }
 
@@ -28,7 +28,7 @@ main {
     flex-direction: column;
     overflow: hidden;
     border: 2px solid black;
-    font-size: calc(0.15 * var(--header-height));
+    box-shadow: 2px 2px black;
 }
 
 .content {

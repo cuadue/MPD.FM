@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import { playMutation, setVolumeMutation, statusSubscription, stopMutation } from './queries.js';
 import { State } from '../generated/graphql';
+import { useEffect, useRef } from 'react';
 
 export const usePlayControls = (stationId?: string) => {
   const [play, {loading: playLoading, error: playError}] = useMutation(playMutation,
@@ -38,4 +39,31 @@ export const useSetVolume = () => {
     }
   }
   return {setVolume, loading, error};
+};
+
+export const useClickOutside = <
+  E extends HTMLElement, C extends HTMLElement, 
+>(
+  containerRef: React.MutableRefObject<C>,
+  callback: (e: Event) => void
+): React.RefObject<E> => {
+  const elementRef = useRef<E>();
+  const callbackRef = useRef((e: Event) => null);
+  callbackRef.current = callback;
+
+  useEffect(() => {
+    const listener = (event: Event) => {
+      if (elementRef.current &&
+          callbackRef.current &&
+          !elementRef.current.contains(event.target as HTMLElement)) {
+        callbackRef.current(event);
+      }
+    }
+    containerRef.current.addEventListener('click', listener);
+    return () => {
+      containerRef.current.removeEventListener('click', listener);
+    }
+  }, [containerRef, callbackRef, elementRef]);
+
+  return elementRef;
 };

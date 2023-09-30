@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import { State, FullStatusFragment } from "../generated/graphql";
-import { useSetVolume, usePlayControls } from "../graphql/hooks";
+import { useSetVolume, usePlayControls, useClickOutside } from "../graphql/hooks";
 import loadingImage from "../assets/pause.svg"
 import errorImage from "../assets/pause.svg"
 import stopImage from "../assets/pause.svg"
 import playImage from "../assets/play.svg"
+import volumeImage from "../assets/volume.svg"
 import style from './controls.module.css'
-import Slider from 'react-slider';
+import Slider, { ReactSliderProps } from 'react-slider';
 import { ApolloError } from "@apollo/client";
 
 type Station = FullStatusFragment['station'];
@@ -42,23 +43,27 @@ const ActionButton: React.FC<{
 
 const VolumeSlider: React.FC<{
     volume: number
-}> = (props) => {
+}> = ({volume}) => {
     const [state, setState] = useState(0);
     const {setVolume, error, loading} = useSetVolume();
 
-    useEffect(() => setState(props.volume), [props.volume]);
+    useEffect(() => setState(volume), [volume]);
 
     return <Slider
+        orientation='horizontal'
         value={state}
         disabled={loading}
         className={style.volumeSlider}
         thumbClassName={style.volumeThumb}
         trackClassName={style.volumeTrack}
         thumbActiveClassName={style.active}
-        renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
-        onAfterChange={async (v) => {
-            setState(v);
-            await setVolume(v);
+        renderThumb={(props, state) => {
+            console.log(props)
+            return <img src={volumeImage} {...props} />
+        }}
+        onAfterChange={async (newVolume) => {
+            setState(newVolume);
+            await setVolume(newVolume);
         }}
     />
 };
@@ -69,7 +74,7 @@ const stateText = ({status, loading, error}: {
     error: ApolloError
 }): string => {
     if (error) {
-        return error.message;
+        return `Error: ${error.message}`;
     }
     if (loading) {
         return 'Loading...'; 
@@ -79,11 +84,33 @@ const stateText = ({status, loading, error}: {
     switch (status.state) {
         case State.Connecting: return 'Connecting...';
         case State.Error: return `Error: ${errorMessage}`;
-        case State.Playing: return `Now Playing: ${stationName}`;
+        case State.Playing: return null;
         case State.Stopped: return 'Stopped';
         case State.Paused: return `Paused: ${stationName}`;
         default: return 'What is happening?';
     }
+}
+
+const StatusDescription: React.FC<{
+    status: Status
+    loading: boolean
+    error: ApolloError
+}> = ({status, loading, error}) => {
+    if (status.title) {
+        status.title = status.title.trim();
+    }
+    const text = stateText({status, loading, error});
+    if (!status.title && !text) {
+        return <></>
+    }
+    return <div className={`${style.statusMessage} ${error && style.error}`}>
+        {text &&
+            <div>{text}</div>
+        }
+        {status.title && 
+            <div className={style.title}>{status.title}</div>
+        }
+    </div>
 }
 
 export const Controls: React.FC<{
@@ -93,12 +120,16 @@ export const Controls: React.FC<{
 }> = ({loading, error, status}) => {
     return <>
         <div className={style.container}>
-            <ActionButton loading={loading} status={status} />
-            <Logo station={status.station} />
-            <VolumeSlider volume={status.volume}/>
-        </div>
-        <div className={style.statusMessage}>
-            {stateText({status, error, loading})}
+            <div className={style.end}>
+                <Logo station={status.station} />
+            </div>
+            <div className={style.middle}>
+                <StatusDescription status={status} loading={loading} error={error} />
+                <VolumeSlider volume={status.volume}/>
+            </div>
+            <div className={style.end}>
+                <ActionButton loading={loading} status={status} />
+            </div>
         </div>
     </>
 };
