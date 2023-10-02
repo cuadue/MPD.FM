@@ -9,7 +9,7 @@ import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 loadDevMessages();
 loadErrorMessages();
  
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.body).render(
   <React.StrictMode>
     <BrowserRouter>
       <ApolloProvider client={apolloClient}>

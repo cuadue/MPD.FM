@@ -1,5 +1,6 @@
 :root {
-    --header-height: max(10rem, min(16rem, 15vh));
+    --header-height-wide: max(8rem, min(16rem, 15vh));
+    --header-height-narrow: max(16rem, min(24rem, 25vh));
     --shadow: 4px;
 }
 
@@ -8,18 +9,50 @@ html, body {
     padding: 0;
     font-family: sans-serif;
     font-size: 10pt;
+    background: black;
 }
 
 main {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #ddd;
+    background-color: #eee;
     border: 2px solid black;
+    position: relative;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+main:before {
+    position: fixed;
+    content: '';
+    left: 0;
+    right: 0;
+    top: 0;
+    margin: 0;
+    padding: 0;
+    height: 1000px;
+    background: black;
+    z-index: 100;
+}
+
+main.narrow:before {
+    transform: translate(0, calc(-1000px + (var(--shadow) + var(--header-height-narrow))));
+}
+
+main.wide:before {
+    transform: translate(0, calc(-1000px + (var(--shadow) + var(--header-height-wide))));
+}
+
+.narrow .header {
+    height: var(--header-height-narrow);
+}
+
+.wide .header {
+    height: var(--header-height-wide);
 }
 
 .header {
-    height: var(--header-height);
+    z-index: 1000;
     position: fixed;
     top: 0;
     left: 0;
@@ -27,10 +60,13 @@ main {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border: 2px solid black;
     box-shadow: 2px 2px black;
 }
 
-.content {
-    margin-top: calc(var(--shadow) + var(--header-height));
+.narrow .content {
+    margin-top: calc(var(--shadow) + var(--header-height-narrow));
+}
+
+.wide .content {
+    margin-top: calc(var(--shadow) + var(--header-height-wide));
 }

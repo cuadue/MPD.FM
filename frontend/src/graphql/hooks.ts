@@ -2,6 +2,7 @@ import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import { playMutation, setVolumeMutation, statusSubscription, stopMutation } from './queries.js';
 import { State } from '../generated/graphql';
 import { useEffect, useRef } from 'react';
+import { useMediaQuery } from 'react-responsive';
 
 export const usePlayControls = (stationId?: string) => {
   const [play, {loading: playLoading, error: playError}] = useMutation(playMutation,
@@ -67,3 +68,5 @@ export const useClickOutside = <
 
   return elementRef;
 };
+
+export const useIsNarrow = () => useMediaQuery({maxWidth: 600});
