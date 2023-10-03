@@ -16,12 +16,13 @@ main {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #eee;
+    background-color: #888;
     border: 2px solid black;
     position: relative;
     padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
+/* This is useful only if <meta name=viewport content="viewport-fit=contain"> */
 main:before {
     position: fixed;
     content: '';

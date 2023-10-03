@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import { playMutation, setVolumeMutation, statusSubscription, stopMutation } from './queries.js';
 import { State } from '../generated/graphql';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
 
 export const usePlayControls = (stationId?: string) => {
@@ -70,3 +70,29 @@ export const useClickOutside = <
 };
 
 export const useIsNarrow = () => useMediaQuery({maxWidth: 600});
+
+export const useNotchStyle = (context: string, style: {
+  notchTop: any
+  notchRight: any
+  notchBottom: any
+  notchLeft: any
+}) => {
+  const mapping = useCallback(() => {
+    console.log(context, 'notch right is', style.notchRight);
+    console.log(context, 'orientation type', screen.orientation.type);
+    switch (screen.orientation.type) {
+      case 'landscape-primary': return style.notchRight;
+      case 'landscape-secondary': return style.notchLeft;
+      case 'portrait-primary': return style.notchTop;
+      case 'portrait-secondary': return style.notchBottom;
+      default: return 'unknown??';
+    }
+  }, []);
+  const [state, setState] = useState(mapping());
+  screen.orientation.addEventListener('change', () => {
+    const newval = mapping();
+    console.log(context, 'new val is', newval);
+    setState(newval)
+  });
+  return state;
+};

@@ -1,4 +1,12 @@
-.container {
+.narrow, .wide {
+    flex: 1 1;
+    display: flex;
+    overflow: hidden;
+    height: 100%;
+    flex-direction: column;
+}
+
+.upper {
     flex-grow: 1;
     background-color: white;
     overflow: hidden;
@@ -6,10 +14,17 @@
 
     display: flex;
     align-items: center;
-    padding: 0.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: calc(0.5rem + env(safe-area-inset-left, 0));
+    padding-right: calc(0.5rem + env(safe-area-inset-right, 0));
 }
 
-.container > * {
+.notchTop .upper {
+    margin-top: env(safe-area-inset-top);
+}
+
+.upper > * {
     height: 100%;
     overflow: hidden;
 }
@@ -64,25 +79,26 @@
     justify-content: center;
 }
 
-.narrowVolumeContainer {
+.narrow .lower {
     flex: 0 0 4em;
     gap: 2em;
 }
 
-.volumeContainer {
+.lower {
     flex: 0 0 2em;
-}
-
-.narrowVolumeContainer, .volumeContainer {
-    padding: 0.5em 1em;
     width: auto;
     display: flex;
     background: black;
     justify-content: center;
     overflow: hidden;
+
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: calc(1rem + env(safe-area-inset-left, 0));
+    padding-right: calc(1rem + env(safe-area-inset-right, 0));
 }
 
-.narrowVolumeContainer .actionButton {
+.narrow .actionButton {
     width: 4em;
     height: 4em;
 }
@@ -108,7 +124,7 @@
 }
 
 
-.narrowVolumeContainer .volumeSlider {
+.narrow .volumeSlider {
     margin: 1em 1em 1em 0;
 }
 

@@ -11,7 +11,7 @@
       "sourceMap": true,
       "esModuleInterop": true,
       "lib": ["DOM"],
-      "types": ["vite/client"],
+      "types": ["vite/client"]
     },
     "ts-node": {
       "esm": true,

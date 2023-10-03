@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useState } from "react";
 import { State, FullStatusFragment } from "../generated/graphql";
-import { useSetVolume, usePlayControls, useClickOutside, useIsNarrow } from "../graphql/hooks";
+import { useSetVolume, usePlayControls, useClickOutside, useIsNarrow, useNotchStyle } from "../graphql/hooks";
 import loadingImage from "../assets/pause.svg"
 import errorImage from "../assets/pause.svg"
 import stopImage from "../assets/pause.svg"
@@ -118,10 +118,12 @@ export const Controls: React.FC<{
     status: Status
 }> = ({loading, error, status}) => {
     const isNarrow = useIsNarrow();
+    const notchStyle = useNotchStyle('in controls', style);
 
+    console.log('controls style', style, 'notch', notchStyle);
     if (isNarrow) {
-        return <>
-            <div className={style.container}>
+        return <div className={[style.narrow, notchStyle].join(' ')}>
+            <div className={style.upper}>
                 <div className={style.begin}>
                     <Logo station={status.station} />
                 </div>
@@ -129,14 +131,14 @@ export const Controls: React.FC<{
                     <StatusDescription status={status} loading={loading} error={error} />
                 </div>
             </div>
-            <div className={style.narrowVolumeContainer}>
+            <div className={style.lower}>
                 <ActionButton loading={loading} status={status} />
                 <VolumeSlider className={style.narrow} volume={status.volume}/>
             </div>
-        </>
+        </div>
     } else {
-        return <>
-            <div className={style.container}>
+        return <div className={[style.wide, notchStyle].join(' ')}>
+            <div className={style.upper}>
                 <div className={style.begin}>
                     <Logo station={status.station} />
                 </div>
@@ -147,9 +149,9 @@ export const Controls: React.FC<{
                     <ActionButton loading={loading} status={status} />
                 </div>
             </div>
-            <div className={style.volumeContainer}>
+            <div className={style.lower}>
                 <VolumeSlider className={style.narrow} volume={status.volume}/>
             </div>
-        </>
+        </div>
     }
 };

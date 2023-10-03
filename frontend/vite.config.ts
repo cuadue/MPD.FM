@@ -23,6 +23,6 @@ export default defineConfig({
                 appleStartup: { source: ICON_PATH },
                 windows: { source: ICON_PATH },
             }
-        })
+        }),
     ],
 })

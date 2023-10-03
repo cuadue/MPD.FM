@@ -2,7 +2,7 @@ import React, { MouseEventHandler } from 'react';
 import { useQuery } from '@apollo/client';
 import { State, FullStatusFragment } from '../generated/graphql';
 import { allStationsQuery } from '../graphql/queries';
-import { usePlayControls } from '../graphql/hooks';
+import { useNotchStyle, usePlayControls } from '../graphql/hooks';
 import style from './stationlist.module.css'
 
 const Station: React.FC<{
@@ -29,6 +29,7 @@ const Station: React.FC<{
 
 export const StationList: React.FC<{status: FullStatusFragment}> = ({status}) => {
     const {loading, error, data} = useQuery(allStationsQuery);
+    const notchStyle = useNotchStyle('in station list', style);
     if (loading) {
         return <div>Loading...</div>
     }
@@ -37,7 +38,7 @@ export const StationList: React.FC<{status: FullStatusFragment}> = ({status}) =>
     }
     const stations = [...data.stations];
     stations.sort((b, a) => a.sortOrder - b.sortOrder);
-    return <div className={style.stationList}>
+    return <div className={[style.stationList, notchStyle].join(' ')}>
         {stations.map(station => {
                 const activeStation = status.station?.id === station.id;
                 const nowPlaying = activeStation && status.state === State.Playing;
