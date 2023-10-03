@@ -1,5 +1,6 @@
 import { ApolloClient, InMemoryCache, Operation, createHttpLink, split } from '@apollo/client';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { RetryLink } from '@apollo/client/link/retry';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { Kind, OperationTypeNode } from 'graphql';
 import {createClient as createWsClient} from 'graphql-ws';
@@ -19,6 +20,11 @@ const isSubscription = (op: Operation): boolean => {
 }
 
 export const apolloClient = new ApolloClient({
-    link: split(isSubscription, wsLink, httpLink),
+    link: new RetryLink({
+        attempts: {
+            max: Infinity,
+            retryIf: () => navigator.onLine
+        }
+    }).split(isSubscription, wsLink, httpLink),
     cache: new InMemoryCache(),
 });
