@@ -29,7 +29,7 @@ const Station: React.FC<{
 
 export const StationList: React.FC<{status: FullStatusFragment}> = ({status}) => {
     const {loading, error, data} = useQuery(allStationsQuery);
-    const notchStyle = useNotchStyle('in station list', style);
+    const notchStyle = useNotchStyle(style);
     if (loading) {
         return <div>Loading...</div>
     }

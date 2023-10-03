@@ -71,15 +71,13 @@ export const useClickOutside = <
 
 export const useIsNarrow = () => useMediaQuery({maxWidth: 600});
 
-export const useNotchStyle = (context: string, style: {
+export const useNotchStyle = (style: {
   notchTop: any
   notchRight: any
   notchBottom: any
   notchLeft: any
 }) => {
   const mapping = useCallback(() => {
-    console.log(context, 'notch right is', style.notchRight);
-    console.log(context, 'orientation type', screen.orientation.type);
     switch (screen.orientation.type) {
       case 'landscape-primary': return style.notchRight;
       case 'landscape-secondary': return style.notchLeft;
@@ -91,7 +89,6 @@ export const useNotchStyle = (context: string, style: {
   const [state, setState] = useState(mapping());
   screen.orientation.addEventListener('change', () => {
     const newval = mapping();
-    console.log(context, 'new val is', newval);
     setState(newval)
   });
   return state;

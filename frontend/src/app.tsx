@@ -13,7 +13,7 @@ const ErrorMessage: React.FC<{
 export const App: React.FC = () => {
     const {loading, error, status} = useStatusSubscription();
     const isNarrow = useIsNarrow();
-    const notchStyle = useNotchStyle('in app', style);
+    const notchStyle = useNotchStyle(style);
 
     return <main className={[
             isNarrow ? style.narrow : style.wide,

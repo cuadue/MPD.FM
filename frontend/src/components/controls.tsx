@@ -1,20 +1,24 @@
 import React, { forwardRef, useEffect, useState } from "react";
 import { State, FullStatusFragment } from "../generated/graphql";
-import { useSetVolume, usePlayControls, useClickOutside, useIsNarrow, useNotchStyle } from "../graphql/hooks";
+import { useSetVolume, usePlayControls, useIsNarrow, useNotchStyle } from "../graphql/hooks";
 import loadingImage from "../assets/pause.svg"
 import errorImage from "../assets/pause.svg"
 import stopImage from "../assets/pause.svg"
 import playImage from "../assets/play.svg"
 import volumeImage from "../assets/volume.svg"
 import style from './controls.module.css'
-import Slider, { ReactSliderProps } from 'react-slider';
+import Slider from 'react-slider';
 import { ApolloError } from "@apollo/client";
 
 type Station = FullStatusFragment['station'];
 type Status = FullStatusFragment;
 
-const Logo: React.FC<{station: Station}> = ({station}) => 
+const Logo: React.FC<{
+    station: Station,
+    onLoad?: (img: HTMLImageElement) => void
+}> = ({station, onLoad}) => 
     <img className={style.logo} src={station?.logoUrl}
+        onLoad={(e) => onLoad(e.target as HTMLImageElement)}
         alt={`${station?.name} (${station?.description})`} />
 
 const ActionButton: React.FC<{
@@ -82,13 +86,10 @@ const stateText = ({status, loading, error}: {
     const errorMessage = status.errorMessage || 'Mystery problem!';
     const stationName = status.station?.name || 'Mystery station!';
     var title = status.title?.trim() || '';
-    if (!title.match(/[a-zA-Z]/)) {
-        title = '';
-    }
     switch (status.state) {
         case State.Connecting: return 'Connecting...';
         case State.Error: return `Error: ${errorMessage}`;
-        case State.Playing: return title || `Now Playing: ${stationName}`;
+        case State.Playing: return title.match(/[a-zA-Z]/) ? title : '';
         case State.Stopped: return 'Stopped';
         case State.Paused: return `Paused: ${stationName}`;
         default: return 'What is happening?';
@@ -96,19 +97,12 @@ const stateText = ({status, loading, error}: {
 }
 
 const StatusDescription: React.FC<{
-    status: Status
+    description: string
     loading: boolean
     error: ApolloError
-}> = ({status, loading, error}) => {
-    if (status.title) {
-        status.title = status.title.trim();
-    }
-    const text = stateText({status, loading, error});
-    if (!text) {
-        return <></>
-    }
+}> = ({description, loading, error}) => {
     return <div className={`${style.statusMessage} ${error ? style.error : ''}`}>
-        {text}
+        {description}
     </div>
 }
 
@@ -117,23 +111,42 @@ export const Controls: React.FC<{
     error: ApolloError
     status: Status
 }> = ({loading, error, status}) => {
+    const [logoDimensions, setLogoDimensions] = useState({w: NaN, h: NaN});
     const isNarrow = useIsNarrow();
-    const notchStyle = useNotchStyle('in controls', style);
+    const notchStyle = useNotchStyle(style);
+    const title = stateText({status, loading, error});
 
-    console.log('controls style', style, 'notch', notchStyle);
+    const logo = <Logo station={status.station} onLoad={(img) => {
+        setLogoDimensions({w: img.naturalWidth, h: img.naturalHeight});
+    }} />
+
+    const logoIsWide = logoDimensions.w > 1.5 * logoDimensions.h;
+    console.log(logoDimensions, logoIsWide);
+
     if (isNarrow) {
-        return <div className={[style.narrow, notchStyle].join(' ')}>
+        const maybeMiddle = status.state !== State.Playing || title ? 
+            <div className={style.middle}>
+                <StatusDescription description={title} loading={loading} error={error} />
+            </div>
+            : <></>;
+
+        const className = [
+            style.narrow,
+            notchStyle,
+            logoIsWide ? style.wideLogo : ''
+        ].join(' ');
+        console.log(className);
+
+        return <div className={className}>
             <div className={style.upper}>
                 <div className={style.begin}>
-                    <Logo station={status.station} />
+                    {logo}
                 </div>
-                <div className={style.middle}>
-                    <StatusDescription status={status} loading={loading} error={error} />
-                </div>
+                {maybeMiddle}
             </div>
             <div className={style.lower}>
                 <ActionButton loading={loading} status={status} />
-                <VolumeSlider className={style.narrow} volume={status.volume}/>
+                <VolumeSlider volume={status.volume}/>
             </div>
         </div>
     } else {
@@ -143,14 +156,14 @@ export const Controls: React.FC<{
                     <Logo station={status.station} />
                 </div>
                 <div className={style.middle}>
-                    <StatusDescription status={status} loading={loading} error={error} />
+                    <StatusDescription description={title} loading={loading} error={error} />
                 </div>
                 <div className={style.end}>
                     <ActionButton loading={loading} status={status} />
                 </div>
             </div>
             <div className={style.lower}>
-                <VolumeSlider className={style.narrow} volume={status.volume}/>
+                <VolumeSlider volume={status.volume}/>
             </div>
         </div>
     }
