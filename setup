@@ -1,0 +1,11 @@
+#!/bin/bash
+set -eux
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+cd backend
+npm i
+npm run build
+
+cd ../frontend
+npm i
+npm run build
