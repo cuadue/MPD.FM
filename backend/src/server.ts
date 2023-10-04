@@ -12,8 +12,11 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer as useWsServer } from 'graphql-ws/lib/use/ws';
+import schemaText from '../schema.graphql?raw';
 
-const PORT = 8080;
+const PORT = Number(process.env.PORT) || 4200;
+const MPD_PORT = Number(process.env.MPD_PORT) || 6600;
+const MPD_HOST = process.env.MPD_HOST || 'localhost';
 
 const graphqlApp = async () => {
   const typeDefs = await readFile('../schema.graphql', 'utf8');
@@ -45,7 +48,7 @@ const graphqlApp = async () => {
   await apolloServer.start();
 
   const stationList = new StationList();
-  const radioClient = new RadioClient(stationList);
+  const radioClient = new RadioClient(stationList, {port: MPD_PORT, host: MPD_HOST});
 
   async function getContext(): Promise<ResolverContext> {
     return { stationList, radioClient };

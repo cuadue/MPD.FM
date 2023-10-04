@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
 import { App } from './app.js';
 import { ApolloProvider } from '@apollo/client';
 import { apolloClient } from './graphql/client';
@@ -11,10 +10,8 @@ loadErrorMessages();
  
 ReactDOM.createRoot(document.body).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <ApolloProvider client={apolloClient}>
-        <App />
-      </ApolloProvider>
-    </BrowserRouter>
+    <ApolloProvider client={apolloClient}>
+      <App />
+    </ApolloProvider>
   </React.StrictMode>
 );

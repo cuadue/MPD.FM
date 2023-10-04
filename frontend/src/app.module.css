@@ -9,6 +9,7 @@ html, body {
     padding: 0;
     font-family: sans-serif;
     font-size: 10pt;
+    background: #b5ac9a;
 }
 
 main {
@@ -16,14 +17,10 @@ main {
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    background: #b5ac9a;
     position: relative;
-    border: 2px solid black;
     padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
-/* This is useful only if <meta name=viewport content="viewport-fit=contain"> */
-/*
 main:before {
     position: fixed;
     content: '';
@@ -44,7 +41,6 @@ main.narrow:before {
 main.wide:before {
     transform: translate(0, calc(-1000px + (var(--shadow) + var(--header-height-wide))));
 }
-*/
 
 .narrow .header {
     height: var(--header-height-narrow);
