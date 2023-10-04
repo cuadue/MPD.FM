@@ -18,7 +18,7 @@ const Logo: React.FC<{
     onLoad?: (img: HTMLImageElement) => void
 }> = ({station, onLoad}) => 
     <img className={style.logo} src={station?.logoUrl}
-        onLoad={(e) => onLoad(e.target as HTMLImageElement)}
+        onLoad={(e) => onLoad && onLoad(e.target as HTMLImageElement)}
         alt={`${station?.name} (${station?.description})`} />
 
 const ActionButton: React.FC<{
@@ -121,7 +121,6 @@ export const Controls: React.FC<{
     }} />
 
     const logoIsWide = logoDimensions.w > 1.5 * logoDimensions.h;
-    console.log(logoDimensions, logoIsWide);
 
     if (isNarrow) {
         const maybeMiddle = status.state !== State.Playing || title ? 
@@ -135,7 +134,6 @@ export const Controls: React.FC<{
             notchStyle,
             logoIsWide ? style.wideLogo : ''
         ].join(' ');
-        console.log(className);
 
         return <div className={className}>
             <div className={style.upper}>
