@@ -12,7 +12,6 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer as useWsServer } from 'graphql-ws/lib/use/ws';
-import schemaText from '../schema.graphql?raw';
 
 const PORT = Number(process.env.PORT) || 4200;
 const MPD_PORT = Number(process.env.MPD_PORT) || 6600;
