@@ -3,7 +3,7 @@ Description=MPD.FM
 After=mpd.service
 
 [Service]
-ExecStart=/usr/bin/node /home/srv-mpd-fm/MPD.FM/bin/www
+ExecStart=/usr/bin/node /home/srv-mpd-fm/MPD.FM/backend/dist/server.js
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
@@ -22,9 +22,6 @@ Environment=MPD_PORT=6600
 
 # Port to serve HTTP (the user needs special permission to serve on 80; default: 4200)
 Environment=PORT=4200
-
-# JSON file with radio stations. If empty [app root]/data/stations.json will be used
-Environment=STATION_FILE=
 
 [Install]
 WantedBy=multi-user.target
