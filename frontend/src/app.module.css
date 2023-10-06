@@ -12,7 +12,7 @@ html, body {
     background: #b5ac9a;
 }
 
-main {
+.root {
     max-width: 80rem;
     margin: 0 auto;
     display: flex;
@@ -21,7 +21,7 @@ main {
     padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
-main:before {
+.root:before {
     position: fixed;
     content: '';
     left: 0;
@@ -34,11 +34,11 @@ main:before {
     z-index: 100;
 }
 
-main.narrow:before {
+.root.narrow:before {
     transform: translate(0, calc(-1000px + (var(--shadow) + var(--header-height-narrow))));
 }
 
-main.wide:before {
+.root.wide:before {
     transform: translate(0, calc(-1000px + (var(--shadow) + var(--header-height-wide))));
 }
 

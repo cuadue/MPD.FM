@@ -1,13 +1,16 @@
 # MPD.FM
-A MPD web server and client to listen to your favorite online radio stations. It's great for a Raspberry Pi home audio system.
+A MPD web server and client to listen to your favorite online radio stations.
+It's great for a Raspberry Pi home audio system.
 
-Forked from <https://github.com/florianheinemann/MPD.FM>
+This is a rewrite of <https://github.com/florianheinemann/MPD.FM> using
+async/await, Typescript, React, and GraphQL. Many thanks to the original
+author.
 
 ## Features
 - Allows quick switching between your favorite radio stations
 - Simple and nicely designed
 - Responsive web client - ready for your phone
-- Designed to be served as home screen app on iOS ("Add to homescreen")
+- Progressive web app ("add to homescreen")
 
 <img src="https://raw.githubusercontent.com/florianheinemann/florianheinemann.github.io/master/MPD.FM.png" width=300>
 
@@ -19,12 +22,11 @@ MPD.fm has been tested on [Raspbian](https://www.raspberrypi.org/downloads/raspb
 
 ## Installation
 ### Raspbian
+First, install NodeJS version 20: <https://github.com/nodesource/distributions>. This requires
+Raspberry Pi OS `bullseye` or later.
+
 Do the following as **root**:
 ```
-# Install Node.js if not yet done
-# E.g., by following Richard Stanley's script: https://github.com/audstanley/NodeJs-Raspberry-Pi
-wget -O - https://raw.githubusercontent.com/audstanley/NodeJs-Raspberry-Pi/master/Install-Node.sh | bash;
-
 # Install MPD if not yet done - configure as needed
 # MPD.FM typically works with an out-of-the-box MPD
 apt-get update
@@ -41,11 +43,11 @@ su srv-mpd-fm
 cd /home/srv-mpd-fm
 
 # Download MPD.fm using Git
-git clone https://github.com/florianheinemann/MPD.FM.git
+git clone https://github.com/cuadue/MPD.FM.git
 
 # Install dependencies
 cd MPD.FM
-npm install
+./setup
 
 # Back to root
 exit
@@ -99,24 +101,4 @@ Environment=MPD_PORT=6600
 
 # Port to serve HTTP (the user needs special permission to serve on 80; default: 4200)
 Environment=PORT=4200
-
-# JSON file with radio stations. If empty [app root]/data/stations.json will be used
-Environment=STATION_FILE=
 ```
-
-### Station list
-`stations.json` provides MPD.FM with all the radio stations that should be shown to the users. Each station is stored as follows:
-```
-{   "id": 1, 
-    "station": "Berlin Community Radio",
-    "desc": "BCR is a broadcasting platform presenting everything that is influencing Berlin",
-    "logo": "http://www.berlincommunityradio.com/sites/all/themes/bcr_bootstrap/images/logospot.png",
-    "stream": "http://berlincommunityradio.out.airtime.pro:8000/berlincommunityradio_a"
-} 
-```
-
-- **id** - A unique identifier of the station (easiest is to simply number them 1, 2, 3, ...
-- **station** - Name of the station that should be displayed
-- **desc** - Short description of the station (optional)
-- **logo** - URL to a logo of the station (any size)
-- **stream** - URL to the stream of the radio station (in a format supported by MPD such as MP3, OGG, ...)

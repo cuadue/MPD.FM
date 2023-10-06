@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit && vite build -m development",
-    "start": "concurrently \"tsc --noEmit --watch\" \"vite build -m development -w\" \"graphql-codegen --config graphql-codegen.yml --watch\"",
+    "watch": "concurrently \"tsc --noEmit --watch\" \"graphql-codegen --config graphql-codegen.yml --watch\"",
+    "start": "vite build -m development -w",
     "codegen": "graphql-codegen --config graphql-codegen.yml --verbose"
   },
   "repository": {

@@ -58,6 +58,7 @@ export class MpdClient extends TypedEmitter<MpdClientEvents> {
   private msgHandlerQueue: Array<MessageHandler> = [];
   private socket?: net.Socket = null;
   private reconnecting = false;
+  private version?: string;
 
   async connect(options: ConnectOptions = defaultConnectOpts) {
     if (this.socket) {
@@ -103,6 +104,7 @@ export class MpdClient extends TypedEmitter<MpdClientEvents> {
 
     const dispatch = {
       version: (payload: string) => {
+        this.version = payload;
         console.log(`MPD Server Version ${payload}`)
         this.emit('stateChanged', 'ready');
         this.emit('ready');
@@ -175,6 +177,10 @@ export class MpdClient extends TypedEmitter<MpdClientEvents> {
     const msg = await this.sendCommand('playlistinfo');
     if (msg instanceof Error) return msg;
     return parseKeyValueMessage(msg);
+  }
+
+  getVersion(): string | undefined {
+    return this.version
   }
 }
 

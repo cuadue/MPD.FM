@@ -65,3 +65,13 @@ export const statusSubscription = graphql(`
     }
   }
 `);
+
+export const mpdBackendQuery = graphql(`
+  query MpdBackendQuery {
+    mpdBackend {
+      hostname
+      port
+      version
+    }
+  }
+`)

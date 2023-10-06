@@ -23,9 +23,16 @@ type Status {
   volume: Int
 }
 
+type MpdBackend {
+  hostname: String
+  port: Int
+  version: String
+}
+
 type Query {
   status: Status
   stations: [Station!]
+  mpdBackend: MpdBackend!
 }
 
 input AddStationInput {

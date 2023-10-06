@@ -185,4 +185,8 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         } 
         return {[Symbol.asyncIterator]: it}
     }
+
+    getVersion(): string | undefined {
+        return this.mpdClient.getVersion();
+    }
 };

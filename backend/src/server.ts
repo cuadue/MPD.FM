@@ -14,8 +14,12 @@ import { WebSocketServer } from 'ws';
 import { useServer as useWsServer } from 'graphql-ws/lib/use/ws';
 
 const PORT = Number(process.env.PORT) || 4200;
-const MPD_PORT = Number(process.env.MPD_PORT) || 6600;
-const MPD_HOST = process.env.MPD_HOST || 'localhost';
+export const MPD_PORT = Number(process.env.MPD_PORT) || 6600;
+export const MPD_HOST = process.env.MPD_HOST || 'localhost';
+
+export const backendHost = async (): Promise<string> => {
+  return 
+}
 
 const graphqlApp = async () => {
   const typeDefs = await readFile('../schema.graphql', 'utf8');

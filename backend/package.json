@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "concurrently \"npx tsx src/server.ts\" \"graphql-codegen --config graphql-codegen.yml --watch\"",
     "codegen": "graphql-codegen --config graphql-codegen.yml",
+    "watch": "graphql-codegen --config graphql-codegen.yml --watch",
     "serve": "tsx src/server.tsx"
   },
   "repository": {

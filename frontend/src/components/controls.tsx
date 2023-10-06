@@ -72,7 +72,7 @@ const VolumeSlider: React.FC<{
     />
 };
 
-const stateText = ({status, loading, error}: {
+const getStatusText = ({status, loading, error}: {
     status: Status
     loading: boolean
     error: ApolloError
@@ -90,8 +90,8 @@ const stateText = ({status, loading, error}: {
         case State.Connecting: return 'Connecting...';
         case State.Error: return `Error: ${errorMessage}`;
         case State.Playing: return title.match(/[a-zA-Z]/) ? title : '';
-        case State.Stopped: return 'Stopped';
-        case State.Paused: return `Paused: ${stationName}`;
+        case State.Stopped: return '';
+        case State.Paused: return '';
         default: return 'What is happening?';
     }
 }
@@ -112,9 +112,8 @@ export const Controls: React.FC<{
     status: Status
 }> = ({loading, error, status}) => {
     const [logoDimensions, setLogoDimensions] = useState({w: NaN, h: NaN});
-    const isNarrow = useIsNarrow();
     const notchStyle = useNotchStyle(style);
-    const title = stateText({status, loading, error});
+    const statusText = getStatusText({status, loading, error});
 
     const logo = <Logo station={status.station} onLoad={(img) => {
         setLogoDimensions({w: img.naturalWidth, h: img.naturalHeight});
@@ -122,47 +121,26 @@ export const Controls: React.FC<{
 
     const logoIsWide = logoDimensions.w > 1.5 * logoDimensions.h;
 
-    if (isNarrow) {
-        const maybeMiddle = status.state !== State.Playing || title ? 
-            <div className={style.middle}>
-                <StatusDescription description={title} loading={loading} error={error} />
-            </div>
-            : <></>;
+    const className = [
+        style.narrow,
+        notchStyle,
+        logoIsWide ? style.wideLogo : ''
+    ].join(' ');
 
-        const className = [
-            style.narrow,
-            notchStyle,
-            logoIsWide ? style.wideLogo : ''
-        ].join(' ');
-
-        return <div className={className}>
-            <div className={style.upper}>
-                <div className={style.begin}>
-                    {logo}
-                </div>
-                {maybeMiddle}
+    return <div className={className}>
+        <div className={style.upper}>
+            <div className={style.begin}>
+                {logo}
             </div>
-            <div className={style.lower}>
-                <ActionButton loading={loading} status={status} />
-                <VolumeSlider volume={status.volume}/>
-            </div>
-        </div>
-    } else {
-        return <div className={[style.wide, notchStyle].join(' ')}>
-            <div className={style.upper}>
-                <div className={style.begin}>
-                    <Logo station={status.station} />
-                </div>
+            {statusText &&
                 <div className={style.middle}>
-                    <StatusDescription description={title} loading={loading} error={error} />
+                    <StatusDescription description={statusText} loading={loading} error={error} />
                 </div>
-                <div className={style.end}>
-                    <ActionButton loading={loading} status={status} />
-                </div>
-            </div>
-            <div className={style.lower}>
-                <VolumeSlider volume={status.volume}/>
-            </div>
+            }
         </div>
-    }
+        <div className={style.lower}>
+            <ActionButton loading={loading} status={status} />
+            <VolumeSlider volume={status.volume}/>
+        </div>
+    </div>
 };

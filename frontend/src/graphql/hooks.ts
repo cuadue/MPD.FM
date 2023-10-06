@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
-import { playMutation, setVolumeMutation, statusSubscription, stopMutation } from './queries.js';
+import { mpdBackendQuery, playMutation, setVolumeMutation, statusSubscription, stopMutation } from './queries.js';
 import { State } from '../generated/graphql';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
