@@ -2,7 +2,7 @@ import React from 'react';
 import { StationList } from './components/stationlist';
 import { Controls } from './components/controls';
 import style from './app.module.css'
-import { useIsNarrow, useNotchStyle, useStatusSubscription } from './graphql/hooks';
+import { useNotchStyle, useStatusSubscription } from './graphql/hooks';
 import { mpdBackendQuery } from './graphql/queries';
 import { useQuery } from '@apollo/client';
 
@@ -30,12 +30,11 @@ const Footer: React.FC = () => {
 
 export const App: React.FC = () => {
     const {loading, error, status} = useStatusSubscription();
-    const isNarrow = useIsNarrow();
     const notchStyle = useNotchStyle(style);
 
     return <div className={[
             style.root,
-            isNarrow ? style.narrow : style.wide,
+            style.narrow,
             notchStyle
         ].join(' ')}>
         <header className={style.header}>
