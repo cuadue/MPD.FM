@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useState } from "react";
 import { State, FullStatusFragment } from "../generated/graphql";
-import { useSetVolume, usePlayControls, useIsNarrow, useNotchStyle } from "../graphql/hooks";
+import { useSetVolume, usePlayControls, useNotchStyle } from "../graphql/hooks";
 import loadingImage from "../assets/pause.svg"
 import errorImage from "../assets/pause.svg"
 import stopImage from "../assets/pause.svg"
