@@ -12,6 +12,8 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer as useWsServer } from 'graphql-ws/lib/use/ws';
+import {dirname} from 'path';
+import {fileURLToPath} from 'url';
 
 const PORT = Number(process.env.PORT) || 4200;
 export const MPD_PORT = Number(process.env.MPD_PORT) || 6600;
@@ -21,8 +23,12 @@ export const backendHost = async (): Promise<string> => {
   return 
 }
 
+process.chdir(dirname(fileURLToPath(import.meta.url)));
+process.chdir('../..');
+console.log('Current directory is' + process.cwd());
+
 const graphqlApp = async () => {
-  const typeDefs = await readFile('../schema.graphql', 'utf8');
+  const typeDefs = await readFile('schema.graphql', 'utf8');
   const schema = makeExecutableSchema({typeDefs, resolvers});
 
   const app = express();
@@ -62,7 +68,7 @@ const graphqlApp = async () => {
 
   app.use('/graphql', cors(), bodyParser.json(),
           apolloMiddleware(apolloServer, { context: getContext }));
-  const staticPath = '../frontend/dist';
+  const staticPath = 'frontend/dist';
   app.use('/', cors(), express.static(staticPath));
 
   httpServer.listen({ port: PORT }, () => {

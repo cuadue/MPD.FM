@@ -3,10 +3,11 @@ Description=MPD.FM
 After=mpd.service
 
 [Service]
-ExecStart=/usr/bin/node /home/srv-mpd-fm/MPD.FM/backend/dist/server.js
+WorkingDirectory=/home/srv-mpd-fm/MPD.FM
+ExecStart=/usr/bin/node backend/dist/server.js
 Restart=always
-StandardOutput=syslog
-StandardError=syslog
+StandardOutput=journal+console
+StandardError=journal+console
 SyslogIdentifier=mpd-fm
 User=srv-mpd-fm
 Group=srv-mpd-fm
