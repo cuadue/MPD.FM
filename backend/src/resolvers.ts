@@ -52,7 +52,7 @@ export const resolvers: Resolvers = {
       }
       return new Promise((resolve, reject) =>
         exec('hostname',
-          (err, stdout) => err ? reject(err) : resolve(stdout)))
+          (err, stdout) => err ? reject(err) : resolve(stdout.trim())))
     },
     version: (root, args, {radioClient}) => radioClient.getVersion(),
     port: (root, args, {radioClient}) => radioClient.getConnectOptions().port,
