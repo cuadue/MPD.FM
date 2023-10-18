@@ -102,3 +102,16 @@ Environment=MPD_PORT=6600
 # Port to serve HTTP (the user needs special permission to serve on 80; default: 4200)
 Environment=PORT=4200
 ```
+
+### MPD Config
+In the `audio_output` block, it's better to use the device name from `aplay -L`
+rather than `aplay -l`.  For example:
+
+```
+audio_output {
+	type 		"alsa"
+	name		"UA25EX"
+	device 		"plughw:CARD=UA25EX,DEV=0"
+	mixer_type 	"software"
+}
+``

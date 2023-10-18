@@ -122,7 +122,7 @@ export const Controls: React.FC<{
     const logoIsWide = logoDimensions.w > 1.5 * logoDimensions.h;
 
     const className = [
-        style.narrow,
+        style.controls,
         notchStyle,
         logoIsWide ? style.wideLogo : ''
     ].join(' ');

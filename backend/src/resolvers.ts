@@ -3,7 +3,6 @@ import {Resolvers} from './generated/schema.js'
 import {State} from './generated/schema.js'
 import { RadioClient, RadioStatus, } from './radioclient.js'
 import {StationList} from './stationlist.js'
-import {MPD_HOST, MPD_PORT} from './server.js'
 import {exec} from 'child_process';
 
 export interface ResolverContext {
@@ -46,14 +45,17 @@ export const resolvers: Resolvers = {
     }
   },
   MpdBackend: {
-    hostname: () => MPD_HOST !== 'localhost' ? MPD_HOST :
-      new Promise((resolve, reject) =>
-        exec('hostname', (err, stdout) => {
-          console.log('hostname said', stdout);
-          resolve(stdout.trim());
-        })),
+    hostname: (root, args, {radioClient}) => {
+      const host = radioClient.getConnectOptions().host;
+      if (host !== 'localhost' && host !== '127.0.0.1') {
+        return host;
+      }
+      return new Promise((resolve, reject) =>
+        exec('hostname',
+          (err, stdout) => err ? reject(err) : resolve(stdout)))
+    },
     version: (root, args, {radioClient}) => radioClient.getVersion(),
-    port: () => MPD_PORT,
+    port: (root, args, {radioClient}) => radioClient.getConnectOptions().port,
   },
   Query: {
     status: async (root, args, {radioClient}) => throwError(await radioClient.getStatus()),

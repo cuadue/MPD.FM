@@ -1,6 +1,5 @@
 :root {
-    --header-height-wide: max(8rem, min(16rem, 15vh));
-    --header-height-narrow: max(16rem, min(24rem, 25vh));
+    --header-height: min(35vh, max(16rem, min(24rem, 25vh)));
     --shadow: 2px;
 }
 
@@ -34,23 +33,12 @@ html, body {
     z-index: 100;
 }
 
-.root.narrow:before {
-    transform: translate(0, calc(-1000px + (var(--shadow) + var(--header-height-narrow))));
-}
-
-.root.wide:before {
-    transform: translate(0, calc(-1000px + (var(--shadow) + var(--header-height-wide))));
-}
-
-.narrow .header {
-    height: var(--header-height-narrow);
-}
-
-.wide .header {
-    height: var(--header-height-wide);
+.root:before {
+    transform: translate(0, calc(-1000px + (var(--shadow) + var(--header-height))));
 }
 
 .header {
+    height: var(--header-height);
     z-index: 1000;
     position: fixed;
     top: 0;
@@ -63,10 +51,6 @@ html, body {
     margin: 0 auto;
 }
 
-.narrow .content {
-    margin-top: var(--header-height-narrow);
-}
-
-.wide .content {
-    margin-top: var(--header-height-wide);
+.content {
+    margin-top: var(--header-height);
 }

@@ -12,12 +12,10 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer as useWsServer } from 'graphql-ws/lib/use/ws';
-import {dirname} from 'path';
-import {fileURLToPath} from 'url';
 
 const PORT = Number(process.env.PORT) || 4200;
-export const MPD_PORT = Number(process.env.MPD_PORT) || 6600;
-export const MPD_HOST = process.env.MPD_HOST || 'localhost';
+const MPD_PORT = Number(process.env.MPD_PORT) || 6600;
+const MPD_HOST = process.env.MPD_HOST || 'localhost';
 
 const graphqlApp = async () => {
   const typeDefs = await readFile('schema.graphql', 'utf8');

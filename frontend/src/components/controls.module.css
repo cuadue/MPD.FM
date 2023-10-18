@@ -1,4 +1,4 @@
-.narrow, .wide {
+.controls {
     flex: 1 1;
     display: flex;
     overflow: hidden;
@@ -7,7 +7,7 @@
 }
 
 .upper {
-    flex-grow: 1;
+    flex: 1 1 75%;
     background-color: white;
     overflow: hidden;
     font-size: 14pt;
@@ -21,11 +21,11 @@
     padding-right: calc(0.5rem + env(safe-area-inset-right, 0));
 }
 
-.narrow.wideLogo .upper {
+.wideLogo .upper {
     flex-direction: column;
 }
 
-.narrow.wideLogo .statusMessage {
+.wideLogo .statusMessage {
     flex-shrink: 5;
 }
 
@@ -69,12 +69,6 @@
     object-fit: contain;
 }
 
-.actionButton {
-    background-color: white;
-    border-radius: 50%;
-    padding: 2px;
-}
-
 .actionButton.loading {
     color: blue; /* Does this ever happen? */
 }
@@ -88,16 +82,10 @@
     justify-content: center;
 }
 
-.narrow .lower {
-    flex: 0 0 4em;
-    gap: 2em;
-}
-
-.wide .lower {
-    flex: 0 0 2em;
-}
-
 .lower {
+    flex: 0 2 4em;
+    gap: 2em;
+
     width: auto;
     display: flex;
     background: black;
@@ -110,10 +98,13 @@
     padding-right: calc(1rem + env(safe-area-inset-right, 0));
 }
 
-.narrow .actionButton {
-    flex: 0 0 3em;
+.actionButton {
+    background-color: white;
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    padding: 2px;
     height: 3em;
-    max-width: 3em;
+    flex: 0 1 3em;
 }
 
 .volumeSlider {
