@@ -4,7 +4,7 @@ import { defaultStations } from './defaultstations.js';
 export type StationMetadata = {
     streamUrl: string
     sortOrder?: number, // Reversed: 0 is at the bottom
-    name?: string
+    name?: string | null
     description?: string | null
     logoUrl?: string | null
 };
@@ -32,13 +32,15 @@ export class StationList {
     createStation(metadata: StationMetadata): StationEntity {
         return this.insertStation({
             id: nanoid(),
-            sortOrder: Object.values(this.byId).reduce((acc, s) =>
-                Math.max(acc, s.sortOrder), 0),
+            sortOrder: Object.values(this.byId).reduce((acc, s, index) =>
+                Math.max(acc, s.sortOrder || index), 0),
             ...metadata});
     }
 
     insertStation(s: StationEntity) {
-        this.byId[s.id] = s;
+        if (s.id) {
+            this.byId[s.id] = s;
+        }
         this.byUrl[s.streamUrl] = s;
         return s;
     }
@@ -53,7 +55,7 @@ export class StationList {
 
     getStations(): Array<StationEntity> {
         const values = Object.values(this.byId);
-        values.sort((a, b) => a.sortOrder - b.sortOrder);
+        values.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
         return values;
     }
 };

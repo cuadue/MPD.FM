@@ -56,7 +56,7 @@ export const parseResponse = (data: string): {responses: Array<MpdResponse>, rem
 export class MpdClient extends TypedEmitter<MpdClientEvents> {
   private buffer: string = '';
   private msgHandlerQueue: Array<MessageHandler> = [];
-  private socket?: net.Socket = null;
+  private socket?: net.Socket | null = null;
   private reconnecting = false;
   private version?: string;
 
@@ -116,8 +116,10 @@ export class MpdClient extends TypedEmitter<MpdClientEvents> {
   }
 
   private handleMessage(response: string | Error) {
-    const {resolve} = this.msgHandlerQueue.shift();
-    resolve(response);
+    const handler = this.msgHandlerQueue.shift();
+    if (typeof handler?.resolve === 'function') {
+      handler.resolve(response);
+    }
 
     if (this.msgHandlerQueue.length === 0) {
       this.idle();
@@ -136,7 +138,7 @@ export class MpdClient extends TypedEmitter<MpdClientEvents> {
         })
         .filter(system => system != null);
       if (subsystems.length > 0) {
-        this.emit('subsystemsChanged', subsystems);
+        this.emit('subsystemsChanged', subsystems as string[]);
       }
     });
   }
@@ -157,9 +159,10 @@ export class MpdClient extends TypedEmitter<MpdClientEvents> {
       data = data.trim();
       const isIdle = data === 'idle';
 
-      if (this.reconnecting) {
+      if (this.reconnecting || !this.socket) {
         return Promise.resolve(new Error('Not connected'));
       }
+
       if (this.msgHandlerQueue[0]?.isIdle) {
         this.socket.write('noidle\n');
       }
@@ -214,7 +217,7 @@ export function parseKeyValueMessage(msg: string): KeyValuePairs {
 }
 
 export function parseArrayMessage(msg: string): Array<KeyValuePairs> {
-  var results = [];
+  var results: Array<KeyValuePairs> = [];
   var obj = {};
 
   msg.split('\n').forEach(function(p) {

@@ -46,7 +46,7 @@ export const resolvers: Resolvers = {
   },
   MpdBackend: {
     hostname: (root, args, {radioClient}) => {
-      const host = radioClient.getConnectOptions().host;
+      const host = radioClient.getConnectOptions()?.host || '(undefined)';
       if (host !== 'localhost' && host !== '127.0.0.1') {
         return host;
       }
@@ -54,8 +54,8 @@ export const resolvers: Resolvers = {
         exec('hostname',
           (err, stdout) => err ? reject(err) : resolve(stdout.trim())))
     },
-    version: (root, args, {radioClient}) => radioClient.getVersion(),
-    port: (root, args, {radioClient}) => radioClient.getConnectOptions().port,
+    version: (root, args, {radioClient}) => radioClient.getVersion() || '(undefined)',
+    port: (root, args, {radioClient}) => radioClient.getConnectOptions()?.port || -1,
   },
   Query: {
     status: async (root, args, {radioClient}) => throwError(await radioClient.getStatus()),

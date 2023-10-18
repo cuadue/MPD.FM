@@ -186,11 +186,11 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         return {[Symbol.asyncIterator]: it}
     }
 
-    getVersion(): string | null {
+    getVersion(): string | undefined {
         return this.mpdClient.getVersion();
     }
 
-    getConnectOptions(): ConnectOptions | null {
+    getConnectOptions(): ConnectOptions | undefined {
         return this.connectOptions;
     }
 };

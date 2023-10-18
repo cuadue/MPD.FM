@@ -46,7 +46,7 @@ type Mutation {
   play(stationId: ID!): Status!
   stop: Status!
   addStation(input: AddStationInput!): Station!
-  setVolume(input: Int): Int
+  setVolume(input: Int!): Int
 }
 
 type Subscription {
