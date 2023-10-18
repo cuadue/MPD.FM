@@ -19,14 +19,6 @@ const PORT = Number(process.env.PORT) || 4200;
 export const MPD_PORT = Number(process.env.MPD_PORT) || 6600;
 export const MPD_HOST = process.env.MPD_HOST || 'localhost';
 
-export const backendHost = async (): Promise<string> => {
-  return 
-}
-
-process.chdir(dirname(fileURLToPath(import.meta.url)));
-process.chdir('../..');
-console.log('Current directory is' + process.cwd());
-
 const graphqlApp = async () => {
   const typeDefs = await readFile('schema.graphql', 'utf8');
   const schema = makeExecutableSchema({typeDefs, resolvers});
