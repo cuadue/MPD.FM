@@ -2,9 +2,9 @@ overwrite: true
 verbose: true
 noSilentErors: true
 schema: ../schema.graphql
-documents: ./src/graphql/queries.ts
+documents: ./lib/graphql/queries.ts
 generates:
-  ./src/generated/:
+  ./lib/graphql/generated/:
     preset: client
     presetConfig:
       fragmentMasking: false

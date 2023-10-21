@@ -1,11 +1,13 @@
-import React, { forwardRef, useEffect, useState } from "react";
-import { State, FullStatusFragment } from "../generated/graphql";
-import { useSetVolume, usePlayControls, useNotchStyle } from "../graphql/hooks";
-import loadingImage from "../assets/pause.svg"
-import errorImage from "../assets/pause.svg"
-import stopImage from "../assets/pause.svg"
-import playImage from "../assets/play.svg"
-import volumeImage from "../assets/volume.svg"
+'use client';
+
+import React, { useEffect, useState } from "react";
+import { State, FullStatusFragment } from "@/lib/graphql/generated/graphql";
+import { useSetVolume, usePlayControls, useNotchStyle } from "@/lib/graphql/hooks";
+import loadingImage from "@/public/pause.svg"
+import errorImage from "@/public/pause.svg"
+import stopImage from "@/public/pause.svg"
+import playImage from "@/public/play.svg"
+import volumeImage from "@/public/volume.svg"
 import style from './controls.module.css'
 import Slider from 'react-slider';
 import { ApolloError } from "@apollo/client";
@@ -17,7 +19,7 @@ const Logo: React.FC<{
     station: Station,
     onLoad?: (img: HTMLImageElement) => void
 }> = ({station, onLoad}) => 
-    <img className={style.logo} src={station?.logoUrl}
+    <img className={style.logo} src={station?.logoUrl || undefined}
         onLoad={(e) => onLoad && onLoad(e.target as HTMLImageElement)}
         alt={`${station?.name} (${station?.description})`} />
 
@@ -25,23 +27,23 @@ const ActionButton: React.FC<{
     status: Status
     loading: boolean
 }> = ({status, loading}) => {
-    const {play, stop, loading: controlsLoading, error} = usePlayControls(status.station?.id);
+    const {play, stop, loading: controlsLoading, error} = usePlayControls(status.station?.id || undefined);
     loading ||= controlsLoading;
 
     const className = `${style.actionButton} ${loading && 'loading'}`;
 
     switch (status.state) {
     case State.Connecting:
-        return <img className={className} src={loadingImage} alt='Connecting' />;
+        return <img className={className} src={loadingImage.src} alt='Connecting' />;
     case State.Paused:
-        return <img className={className} src={playImage} alt='Paused' onClick={play} />
+        return <img className={className} src={playImage.src} alt='Paused' onClick={play} />
     case State.Stopped:
-        return <img className={className} src={playImage} alt='Stopped' onClick={play} />
+        return <img className={className} src={playImage.src} alt='Stopped' onClick={play} />
     case State.Playing:
-        return <img className={className} src={stopImage} alt='Paused' onClick={stop} />
+        return <img className={className} src={stopImage.src} alt='Paused' onClick={stop} />
     case State.Error:
     default:
-        return <img className={className} src={errorImage} alt='Error' />;
+        return <img className={className} src={errorImage.src} alt='Error' />;
     }
 }
 
@@ -63,7 +65,7 @@ const VolumeSlider: React.FC<{
         trackClassName={style.volumeTrack}
         thumbActiveClassName={style.active}
         renderThumb={(props, state) =>
-            <img src={volumeImage} {...props} />
+            <img src={volumeImage.src} {...{...props, key: undefined}} key={props.key} />
         }
         onAfterChange={async (newVolume) => {
             setState(newVolume);
@@ -75,7 +77,7 @@ const VolumeSlider: React.FC<{
 const getStatusText = ({status, loading, error}: {
     status: Status
     loading: boolean
-    error: ApolloError
+    error?: ApolloError
 }): string => {
     if (error) {
         return `Error: ${error.message}`;
@@ -99,7 +101,7 @@ const getStatusText = ({status, loading, error}: {
 const StatusDescription: React.FC<{
     description: string
     loading: boolean
-    error: ApolloError
+    error?: ApolloError
 }> = ({description, loading, error}) => {
     return <div className={`${style.statusMessage} ${error ? style.error : ''}`}>
         {description}
@@ -108,11 +110,10 @@ const StatusDescription: React.FC<{
 
 export const Controls: React.FC<{
     loading: boolean
-    error: ApolloError
+    error?: ApolloError
     status: Status
 }> = ({loading, error, status}) => {
     const [logoDimensions, setLogoDimensions] = useState({w: NaN, h: NaN});
-    const notchStyle = useNotchStyle(style);
     const statusText = getStatusText({status, loading, error});
 
     const logo = <Logo station={status.station} onLoad={(img) => {
@@ -123,7 +124,6 @@ export const Controls: React.FC<{
 
     const className = [
         style.controls,
-        notchStyle,
         logoIsWide ? style.wideLogo : ''
     ].join(' ');
 
@@ -140,7 +140,7 @@ export const Controls: React.FC<{
         </div>
         <div className={style.lower}>
             <ActionButton loading={loading} status={status} />
-            <VolumeSlider volume={status.volume}/>
+            <VolumeSlider volume={status.volume || 0}/>
         </div>
     </div>
 };

@@ -1,11 +1,13 @@
+'use client';
+
 import { useMutation, useSubscription } from '@apollo/client';
-import { playMutation, setVolumeMutation, statusSubscription, stopMutation } from './queries.js';
-import { State } from '../generated/graphql';
+import { playMutation, setVolumeMutation, statusSubscription, stopMutation } from '@/lib/graphql/queries';
+import { State } from './generated/graphql';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const usePlayControls = (stationId?: string) => {
   const [play, {loading: playLoading, error: playError}] = useMutation(playMutation,
-    {variables: {input: stationId}});
+    {variables: {input: stationId || ''}});
 
   const [stop, {loading: stopLoading, error: stopError}] = useMutation(stopMutation);
 

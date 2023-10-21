@@ -1,64 +1,40 @@
 {
-  "name": "mpd.fm-frontend",
-  "version": "0.2.0",
-  "description": "A MPD web server and client to listen to your favorite online radio stations",
-  "type": "module",
+  "name": "frontend-next",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "build": "tsc --noEmit && vite build -m development",
-    "watch": "concurrently \"tsc --noEmit --watch\" \"graphql-codegen --config graphql-codegen.yml --watch\"",
-    "start": "vite build -m development -w",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
     "codegen": "graphql-codegen --config graphql-codegen.yml --verbose"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cuadue/MPD.FM.git"
-  },
-  "keywords": [
-    "MPD",
-    "client",
-    "server"
-  ],
-  "author": "Wesley Waugh",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/cuadue/MPD.FM/issues"
-  },
-  "homepage": "https://github.com/cuadue/MPD.FM#readme",
   "dependencies": {
-    "@apollo/client": "^3.8.4",
-    "@apollo/server": "^4.6.0",
-    "body-parser": "^1.20.2",
+    "@apollo/client": "^3.8.6",
+    "@apollo/experimental-nextjs-app-support": "^0.4.3",
     "graphql": "^16.8.1",
-    "graphql-ws": "^5.14.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-slider": "^2.0.6",
-    "ws": "^8.14.1"
+    "next": "13.5.6",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-slider": "^2.0.6"
   },
   "devDependencies": {
-    "@darkobits/vite-plugin-favicons": "^0.3.0",
-    "@graphql-codegen/cli": "5.0.0",
+    "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
-    "@graphql-codegen/typescript": "4.0.1",
+    "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-document-nodes": "^4.0.1",
     "@graphql-codegen/typescript-operations": "^4.0.1",
-    "@parcel/watcher": "^2.3.0",
-    "@tsconfig/node18": "^2.0.0",
-    "@types/cors": "^2.8.13",
-    "@types/debug": "^4.1.8",
-    "@types/node": "^20.6.3",
-    "@types/react": "^18.2.22",
-    "@types/react-dom": "^18.2.7",
-    "@types/react-slider": "^1.3.1",
-    "@vitejs/plugin-react": "^4.0.4",
-    "concurrently": "^8.0.1",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "nodemon": "^2.0.22",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.0.4",
-    "vite": "^4.4.10"
-  },
-  "nodemonConfig": {
-    "ext": "graphql,ts"
+    "@types/cors": "^2.8.15",
+    "@types/debug": "^4.1.10",
+    "@types/node": "^20.8.7",
+    "@types/react": "^18.2.31",
+    "@types/react-dom": "^18.2.14",
+    "@types/react-slider": "^1.3.3",
+    "autoprefixer": "^10",
+    "eslint": "^8",
+    "eslint-config-next": "13.5.6",
+    "postcss": "^8",
+    "tailwindcss": "^3",
+    "typescript": "^5"
   }
 }

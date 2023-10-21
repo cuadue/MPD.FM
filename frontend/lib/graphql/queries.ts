@@ -1,4 +1,4 @@
-import { graphql } from '../generated';
+import { graphql } from '@/lib/graphql/generated';
 
 const fullStatusFragment = graphql(`
   fragment FullStatus on Status{
@@ -53,7 +53,7 @@ export const stopMutation = graphql(`
 `);
 
 export const setVolumeMutation = graphql(`
-  mutation SetVolume($input: Int) {
+  mutation SetVolume($input: Int!) {
     setVolume(input: $input)
   }
 `);
