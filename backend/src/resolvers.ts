@@ -74,6 +74,7 @@ export const resolvers: Resolvers = {
     addStation: (parent, {input}, {radioClient}) => 
       radioClient.createStation(input),
     setVolume: async (parent, {input}, {radioClient}) => {
+      console.log('doing set volume', input);
       await throwError(radioClient.sendVolume(input));
       return input;
     },

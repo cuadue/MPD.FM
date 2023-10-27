@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import React from 'react'
-import { ApolloWrapper } from './apollowrapper'
+import { ApolloWrapper } from '@/lib/graphql/apollowrapper'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,7 +17,7 @@ const RootLayout: React.FC<{
   children,
 }) => 
   <html lang="en">
-    <body className={inter.className}>
+    <body>
       <ApolloWrapper>
         {children}
       </ApolloWrapper>

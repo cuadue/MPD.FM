@@ -13,13 +13,22 @@ import {
 import { Kind, OperationTypeNode } from "graphql";
 import {createClient as createWsClient} from 'graphql-ws';
 
-// have a function to create a client for you
-function makeClient() {
-    const origin = 'http://localhost:4200';
-    const host = 'localhost:4200';    
+const BACKEND_PORT = 4200;
+
+export function makeApolloClient() {
+    const location = (typeof window !== typeof undefined)
+        ? window.location
+        : {
+            protocol: 'http:',
+            hostname: 'localhost:4200',
+        };
+
+    const makeUri = (protocol: string) => 
+        `${protocol}//${location.hostname}:${BACKEND_PORT}/graphql`;
+
     const httpLink = new HttpLink({
         // this needs to be an absolute url, as relative urls cannot be used in SSR
-        uri: origin + '/graphql',
+        uri: makeUri(location.protocol),
         // you can disable result caching here if you want to
         // (this does not work if you are rendering your page with `export const dynamic = "force-static"`)
         fetchOptions: { cache: "no-store" },
@@ -30,7 +39,7 @@ function makeClient() {
     });
     
     const wsLink = new GraphQLWsLink(createWsClient({
-        url: `ws://${host}/graphql`,
+        url: makeUri('ws:')
     }));
     
     const isSubscription = (op: Operation): boolean => {
@@ -39,8 +48,8 @@ function makeClient() {
             definition.operation === OperationTypeNode.SUBSCRIPTION;
     }
 
-    
     return new NextSSRApolloClient({
+        ssrMode: true,
         // use the `NextSSRInMemoryCache`, not the normal `InMemoryCache`
         cache: new NextSSRInMemoryCache(),
         link:
@@ -66,7 +75,7 @@ function makeClient() {
 // you need to create a component to wrap your app in
 export function ApolloWrapper({ children }: React.PropsWithChildren) {
     return (
-        <ApolloNextAppProvider makeClient={makeClient}>
+        <ApolloNextAppProvider makeClient={makeApolloClient}>
             {children}
         </ApolloNextAppProvider>
     );

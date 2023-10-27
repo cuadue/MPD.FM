@@ -2,7 +2,7 @@
 
 import { useMutation, useSubscription } from '@apollo/client';
 import { playMutation, setVolumeMutation, statusSubscription, stopMutation } from '@/lib/graphql/queries';
-import { State } from './generated/graphql';
+import { FullStatusFragment, State } from './generated/graphql';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const usePlayControls = (stationId?: string) => {
@@ -18,25 +18,33 @@ export const usePlayControls = (stationId?: string) => {
     error: playError || stopError };
 }
 
-export const useStatusSubscription = () => {
+export const useStatusSubscription = (initialStatus: FullStatusFragment) => {
+  const [status, setStatus] = useState(initialStatus);
   const {loading, error, data} = useSubscription(statusSubscription);
+  console.log('useStatusSubscription loading', loading, 'error', 'status', status); 
+  useEffect(() => {
+    if (error) {
+      setStatus({state: State.Error, errorMessage: error.message});
+    }
+    else if (!loading && data) {
+      setStatus(data.statusChanged);
+    }
+  }, [data, error]);
 
-  return {
-    loading,
-    error,
-    status: data?.statusChanged ?? {state: State.Connecting}
-  };
+  return {status, loading, error};
 }
 
 export const useSetVolume = () => {
   const [mutate, {loading, error}] = useMutation(setVolumeMutation);
   const setVolume = async (volume: number) => {
+    volume = Math.round(volume);
     try {
-      const {data: setVolume} = await mutate({
+      const {data: newVolume} = await mutate({
         variables: {input: volume}
       });
-      return setVolume;
+      return newVolume?.setVolume;
     } catch (err) {
+      console.log('failed setting volume', err);
       return err;
     }
   }

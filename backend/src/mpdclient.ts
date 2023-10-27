@@ -155,6 +155,7 @@ export class MpdClient extends TypedEmitter<MpdClientEvents> {
   };
 
   private async send(data: string): Promise<string | Error> {
+    console.log('sending', data);
     return new Promise((resolve) => {
       data = data.trim();
       const isIdle = data === 'idle';

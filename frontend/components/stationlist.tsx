@@ -1,8 +1,8 @@
-import React, { MouseEventHandler } from 'react';
-import { useQuery } from '@apollo/client';
-import { State, FullStatusFragment } from '@/lib/graphql/generated/graphql';
-import { allStationsQuery } from '@/lib/graphql/queries';
-import { useNotchStyle, usePlayControls } from '@/lib/graphql/hooks';
+'use client';
+
+import React, { MouseEventHandler, useCallback, useEffect, useState } from 'react';
+import { State, FullStatusFragment, AllStationsQuery } from '@/lib/graphql/generated/graphql';
+import { usePlayControls, useStatusSubscription } from '@/lib/graphql/hooks';
 import style from './stationlist.module.css'
 
 const Station: React.FC<{
@@ -16,10 +16,12 @@ const Station: React.FC<{
     const { id, description, logoUrl, name} = station;
 
     const {loading, error, play, stop} = usePlayControls(id || undefined);
-    const handleClick: MouseEventHandler = () =>
-        nowPlaying ? stop() : play();
+    const handleClick: MouseEventHandler = useCallback(
+        () => nowPlaying ? stop() : play(),
+        [nowPlaying]
+    );
 
-    return <div className={`${style.station} ${activeStation && style.activeStation}`} onClick={handleClick}>
+    return <div className={`${style.station} ${activeStation ? style.activeStation : ''}`} onClick={handleClick}>
       	<div className={style.logo}>
             <img src={logoUrl || undefined} />
         </div>
@@ -30,15 +32,12 @@ const Station: React.FC<{
     </div>
 };
 
-export const StationList: React.FC<{status: FullStatusFragment}> = ({status}) => {
-    const {loading, error, data} = useQuery(allStationsQuery);
-    if (loading) {
-        return <div>Loading...</div>
-    }
-    if (error) {
-        return <div>Error: {error.message}</div>
-    }
-    const stations = [...data?.stations || []];
+export const StationList: React.FC<{
+    status: FullStatusFragment,
+    stations: AllStationsQuery['stations']
+}> = ({status: initialStatus, stations}) => {
+    const {status, loading, error} = useStatusSubscription(initialStatus);
+
     stations.sort((b, a) => (a.sortOrder || 0) - (b.sortOrder || 0));
     return <div className={style.stationList}>
         {stations.map(station => {
