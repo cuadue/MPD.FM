@@ -1,30 +1,15 @@
 import { HTMLAttributes, useCallback, useEffect } from "react";
 import React, { useRef, useState } from "react";
-
-type CssClass = HTMLAttributes<'div'>['className'];
+import volumeImage from "@/public/volume.svg"
 
 const cn = (...names: string[]) => names.join(' ')
+const MAX = 100;
+const MIN = 0;
 
-export const Slider: React.FC<{
-    className: CssClass
-    trackBeginClassName: CssClass
-    trackEndClassName: CssClass
-    handleClassName: CssClass
-    handleActiveClassName: CssClass
-    handleInactiveClassName: CssClass
-    min: number
-    max: number
+export const VolumeSlider: React.FC<{
     value: number
     onChange: (value: number) => void
 }> = ({
-    className,
-    trackBeginClassName,
-    trackEndClassName,
-    handleClassName,
-    handleActiveClassName,
-    handleInactiveClassName,
-    min,
-    max,
     value,
     onChange
 }) => {
@@ -32,25 +17,21 @@ export const Slider: React.FC<{
     const [containerSize, setContainerSize] = useState(NaN);
     const [dragPosition, setDragPosition] = useState(NaN);
     const newValue = useRef(NaN);
-    const span = max - min;
+    const span = MAX - MIN;
     const containerRef = useRef(null as HTMLDivElement);
     const tracking = isFinite(newValue.current);
 
     useEffect(() => {
-        newValue.current = Math.max(min, Math.min(max,
+        newValue.current = Math.max(MIN, Math.min(MAX,
             value + span * (dragPosition - dragOrigin) / containerSize
         ));
     }, [value, span, dragPosition, dragOrigin, containerSize]);
 
-    console.log('render slider tracking', tracking, 'dragOrigin', dragOrigin,
-                'containerSize', containerSize, 'newValue', newValue);
-
     const actualPosition = isFinite(newValue.current)
-        ? (newValue.current - min) / span
-        : (value - min) / span;
+        ? (newValue.current - MIN) / span
+        : (value - MIN) / span;
 
     const mouseUp = useCallback(() => {
-        console.log('mouseup', newValue.current);
         if (isFinite(newValue.current)) {
             onChange(newValue.current);
         }
@@ -66,63 +47,59 @@ export const Slider: React.FC<{
     }, []);
 
     const mouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-        console.log('mousedown');
         setDragPosition(e.clientX);
         setDragOrigin(e.clientX);
         setContainerSize(containerRef.current.getBoundingClientRect().width);
     }, []);
 
     useEffect(() => {
-        console.log('attach');
         document.addEventListener('mouseup', mouseUp);
         document.addEventListener('mousemove', mouseMove);
         return () => {
-            console.log('detach');
             document.removeEventListener('mouseup', mouseUp);
             document.removeEventListener('mousemove', mouseMove);
         }
     }, []);
 
-    console.log('Slider', value, newValue.current, actualPosition);
-
     return <div
-            className={className}
-            style={{position: 'relative'}}
+            className={'flex grow h-4 relative'}
             ref={containerRef}
         >
-        <div className={trackBeginClassName}
+        <div className={'bg-amber-700 rounded-l-full cursor-pointer select-none'}
             onClick={(e) => {
                 console.log(e.target);
             }}
             style={{
                 width: `${100 * actualPosition}%`,
-                userSelect: 'none'
+                willChange: tracking ? 'width' : undefined
             }}
         />
 
-        <div
+        <img
+            src={volumeImage.src}
+            draggable={false}
             className={cn(
-                handleClassName,
-                tracking ? handleActiveClassName : handleInactiveClassName
+                'w-0 p-6 -translate-x-1/2 -translate-y-1/2 rounded-full top-1/2',
+                'absolute cursor-ew-resize select-none',
+                tracking
+                    ? 'bg-emerald-300'
+                    : 'bg-white'
             )}
             onMouseDown={mouseDown}
 
             style={{
-                position: 'absolute',
                 left: `${100 * actualPosition}%`,
-                top: '50%',
-                cursor: 'ew-resize',
-                userSelect: 'none',
+                willChange: tracking ? 'left' : undefined
             }}
         />
 
-        <div className={trackEndClassName}
+        <div className={'bg-cyan-600 rounded-r-full cursor-pointer select-none'}
             onClick={(e) => {
                 console.log(e.target);
             }}
             style={{
                 width: `${100 - 100 * actualPosition}%`,
-                userSelect: 'none'
+                willChange: tracking ? 'width' : undefined
             }}
         />
     </div>

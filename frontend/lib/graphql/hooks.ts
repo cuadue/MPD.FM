@@ -21,7 +21,6 @@ export const usePlayControls = (stationId?: string) => {
 export const useStatusSubscription = (initialStatus: FullStatusFragment) => {
   const [status, setStatus] = useState(initialStatus);
   const {loading, error, data} = useSubscription(statusSubscription);
-  console.log('useStatusSubscription loading', loading, 'error', 'status', status); 
   useEffect(() => {
     if (error) {
       setStatus({state: State.Error, errorMessage: error.message});
@@ -34,21 +33,41 @@ export const useStatusSubscription = (initialStatus: FullStatusFragment) => {
   return {status, loading, error};
 }
 
-export const useSetVolume = () => {
+export const useCurrentStation = (initialStatus: FullStatusFragment) => {
+  const [status, setStatus] = useState(initialStatus);
+  const {loading, error, data} = useSubscription(statusSubscription);
+  useEffect(() => {
+    if (error) {
+      setStatus({state: State.Error, errorMessage: error.message});
+    }
+    else if (!loading && data) {
+      setStatus(data.statusChanged);
+    }
+  }, [data, error]);
+
+  return {status, loading, error};
+}
+
+export const useVolumeControl = (volume: number) => {
+  const [state, setState] = useState(volume ?? 100);
   const [mutate, {loading, error}] = useMutation(setVolumeMutation);
-  const setVolume = async (volume: number) => {
-    volume = Math.round(volume);
+
+  useEffect(() => setState(volume), [volume]);
+
+  const setVolume = async (newVolume: number) => {
+    newVolume = Math.round(newVolume);
     try {
-      const {data: newVolume} = await mutate({
-        variables: {input: volume}
+      setState(newVolume);
+      const {data} = await mutate({
+        variables: {input: newVolume}
       });
-      return newVolume?.setVolume;
+      setState(data.setVolume ?? 100);
     } catch (err) {
       console.log('failed setting volume', err);
-      return err;
     }
   }
-  return {setVolume, loading, error};
+
+  return {volume: state, setVolume, loading, error};
 };
 
 export const useClickOutside = <

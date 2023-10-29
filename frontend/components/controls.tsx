@@ -2,14 +2,13 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { State, FullStatusFragment } from "@/lib/graphql/generated/graphql";
-import { useSetVolume, usePlayControls, useNotchStyle, useStatusSubscription } from "@/lib/graphql/hooks";
+import { useVolumeControl, usePlayControls, useNotchStyle, useStatusSubscription } from "@/lib/graphql/hooks";
 import loadingImage from "@/public/pause.svg"
 import errorImage from "@/public/pause.svg"
 import stopImage from "@/public/pause.svg"
 import playImage from "@/public/play.svg"
-import volumeImage from "@/public/volume.svg"
 import style from './controls.module.css'
-import {Slider} from '@/components/slider';
+import {VolumeSlider} from '@/components/volumeslider';
 import { ApolloError } from "@apollo/client";
 
 type Station = FullStatusFragment['station'];
@@ -45,33 +44,6 @@ const ActionButton: React.FC<{
     }
 }
 
-const VolumeSlider: React.FC<{
-    volume: number
-}> = ({volume: controlledVolume}) => {
-    const [volume, setVolumeState] = useState(controlledVolume);
-    const {setVolume, loading, error} = useSetVolume();
-    console.log('Volume controlled', controlledVolume, 'state', volume);
-
-    const onChange = useCallback((newVolume: number) => {
-        console.log('new volume', newVolume);
-        setVolumeState(newVolume);
-        setVolume(newVolume);
-    }, []);
-
-    return <Slider
-        min={0}
-        max={100}
-        value={volume}
-        className='flex grow h-4'
-        handleClassName='w-0 p-6 -translate-x-1/2 -translate-y-1/2 rounded-full'
-        handleInactiveClassName='bg-emerald-700 '
-        handleActiveClassName='bg-emerald-300 '
-        trackBeginClassName='bg-amber-700 rounded-l-full cursor-pointer'
-        trackEndClassName='bg-cyan-600 rounded-r-full cursor-pointer'
-        onChange={onChange}
-    />
-};
-
 const getStatusText = ({status, error}: {
     status: Status
     error?: ApolloError
@@ -103,10 +75,11 @@ const StatusDescription: React.FC<{
 export const Controls: React.FC<{
     status: FullStatusFragment
 }> = ({status: initialStatus}) => {
-    console.log('Controls initial status', initialStatus);
     const [logoDimensions, setLogoDimensions] = useState({w: NaN, h: NaN});
     const {status, error} = useStatusSubscription(initialStatus);
     const statusText = getStatusText({status, error});
+
+    const {volume, setVolume} = useVolumeControl(status.volume);
 
     if (error) {
         return error.message;
@@ -122,9 +95,9 @@ export const Controls: React.FC<{
     return <div className={className}>
         <div className={style.upper}>
             <div className={style.begin}>
-               <Logo station={status.station} onLoad={(img) => {
+               <Logo station={status.station} onLoad={useCallback((img) => {
                     setLogoDimensions({w: img.naturalWidth, h: img.naturalHeight});
-                }} />
+                }, [])} />
             </div>
             {statusText &&
                 <div className={style.middle}>
@@ -134,7 +107,10 @@ export const Controls: React.FC<{
         </div>
         <div className={style.lower}>
             <ActionButton status={status} />
-            <VolumeSlider volume={status.volume || 0}/>
+            <VolumeSlider
+                value={volume}
+                onChange={(newVolume: number) => setVolume(newVolume)}
+            />
         </div>
     </div>
 };
