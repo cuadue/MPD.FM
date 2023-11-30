@@ -40,7 +40,7 @@ export const defaultStations = [
     {   "id": 4,
         "station": "KCSM",
         "desc": "Jazz 91 College of San Mateo",
-        "logo": "https://i1.wp.com/kcsm.org/jazz91/blog/wp-content/uploads/2013/09/Jazz91.gif",
+        "logo": "../kcsm.jpg",
         "stream": "http://ice5.securenetsystems.net/KCSM"
     },
     {   "id": 2,
@@ -67,5 +67,12 @@ export const defaultStations = [
         "desc": "Community Radio Portland",
         "logo": "https://kboo.fm/sites/all/themes/custom/kbooui/logo.png",
         "stream": "https://live.kboo.fm:8443/high"
+    },
+    {
+        "id": 12,
+        "station": "Eclectic 24",
+        "stream": "https://kcrw.streamguys1.com/kcrw_192k_mp3_e24",
+        "desc": "KCRW Eclectic 24",
+        "logo": "https://www.kcrw.com/music/shows/eclectic24/eclectic-24-sun/@@images/image/listing-rectangle",
     }
 ];

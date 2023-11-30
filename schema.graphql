@@ -3,7 +3,14 @@ enum State {
   PLAYING
   PAUSED
   STOPPED
-  ERROR
+}
+
+type MyError {
+  message: String
+}
+
+input MpdInstance {
+  id: String
 }
 
 type Station {
@@ -17,10 +24,10 @@ type Station {
 
 type Status {
   state: State!
-  errorMessage: String
   station: Station
   title: String
   volume: Int
+  errorMessage: String
 }
 
 type MpdBackend {
@@ -29,10 +36,15 @@ type MpdBackend {
   version: String
 }
 
+type Volume {
+  volume: Int
+}
+
 type Query {
-  status: Status
+  status(mpdInstance: MpdInstance!): Status!
   stations: [Station!]
-  mpdBackend: MpdBackend!
+  mpdBackend(mpdInstance: MpdInstance!): MpdBackend
+  instanceIds: [String!]
 }
 
 input AddStationInput {
@@ -43,12 +55,17 @@ input AddStationInput {
 }
 
 type Mutation {
-  play(stationId: ID!): Status!
-  stop: Status!
-  addStation(input: AddStationInput!): Station!
-  setVolume(input: Int): Int
+  play(mpdInstance: MpdInstance!, stationId: ID!): Status!
+  stop(mpdInstance: MpdInstance!): Status!
+  # addStation(mpdInstance: mpdInstance, input: AddStationInput!): Station!
+  setVolume(mpdInstance: MpdInstance!, input: Int!): Volume!
+}
+
+type StatusChangedEvent {
+  status: Status
+  error: MyError
 }
 
 type Subscription {
-  statusChanged: Status!
+  statusChanged(mpdInstance: MpdInstance!): StatusChangedEvent!
 }

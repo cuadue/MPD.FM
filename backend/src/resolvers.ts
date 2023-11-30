@@ -1,88 +1,100 @@
-import { GraphQLError } from 'graphql';
-import {Resolvers} from './generated/schema.js'
+import * as path from 'node:path';
+import {MpdBackend, MpdInstance, Resolvers, Status, StatusChangedEvent} from './generated/schema.js'
 import {State} from './generated/schema.js'
 import { RadioClient, RadioStatus, } from './radioclient.js'
 import {StationList} from './stationlist.js'
-import {exec} from 'child_process';
+import {promisify} from 'node:util';
+import {exec as execCallback} from 'child_process';
+import { radioClients, clientIds } from './server.js';
+import { GraphQLError } from 'graphql';
+const exec = promisify(execCallback);
 
 export interface ResolverContext {
-  radioClient: RadioClient;
   stationList: StationList;
 }
 
-const throwError = <T>(x: T | Error): T => {
-  if (x instanceof Error) throw new GraphQLError(x.message);
-  else return x;
+const getRadioClient = ({id}: MpdInstance): RadioClient => {
+  const ret = radioClients[id];
+  if (!ret) {
+    throw new GraphQLError(`No such instance ${id}`);
+  }
+  return ret;
 }
 
 export const resolvers: Resolvers = {
   Status: {
-    state: (parent) => {
-      if (parent.radioState instanceof Error) {
-        return State.Error;
-      }
-      switch (parent.radioState) {
+    state(obj) {
+      switch (obj.state) {
         case 'connecting': return State.Connecting;
-        case 'ready':
-          if (parent.playState instanceof Error) {
-            return State.Error;
-          }
-          switch (parent.playState) {
-            case 'pause': return State.Paused;
-            case 'stop': return State.Stopped;
-            case 'play': return State.Playing;
-            default:
-              throw new GraphQLError(`Internal error: Invalid play state '${parent.playState}'`);
-          }
-        default:
-          throw new GraphQLError(`Internal error: Invalid radio state '${parent.radioState}'`);
+        case 'pause': return State.Paused;
+        case 'stop': return State.Stopped;
+        case 'play': return State.Playing;
+        default: console.log('Unknown state', obj.state); return State.Connecting;
       }
     },
-    errorMessage: ({radioState, playState}) => {
-      return radioState instanceof Error ? radioState.message :
-             playState instanceof Error ? playState.message :
-             null;
-    }
-  },
-  MpdBackend: {
-    hostname: (root, args, {radioClient}) => {
-      const host = radioClient.getConnectOptions().host;
-      if (host !== 'localhost' && host !== '127.0.0.1') {
-        return host;
-      }
-      return new Promise((resolve, reject) =>
-        exec('hostname',
-          (err, stdout) => err ? reject(err) : resolve(stdout.trim())))
-    },
-    version: (root, args, {radioClient}) => radioClient.getVersion(),
-    port: (root, args, {radioClient}) => radioClient.getConnectOptions().port,
+    station: (obj, args, {stationList}) =>
+      stationList.getStationByUrl(obj.station?.streamUrl),
   },
   Query: {
-    status: async (root, args, {radioClient}) => throwError(await radioClient.getStatus()),
-    stations: (root, args, {radioClient}) => radioClient.getStations(),
-    mpdBackend: () => ({}),
+    status: async (root, {mpdInstance}) => getRadioClient(mpdInstance).getStatus(),
+    stations: (root, args, {stationList}) => stationList.getStations(),
+    mpdBackend: async (root, {mpdInstance}): Promise<MpdBackend> => {
+      const radioClient = getRadioClient(mpdInstance);
+      const version = radioClient.getVersion() || '(unknown version)';
+      const port = radioClient.getConnectOptions()?.port || -1;
+      const host = radioClient.getConnectOptions()?.host || '(unknown host)';
+      const hostname = (host !== 'localhost' && host !== '127.0.0.1')
+        ? host
+        : await exec('hostname')
+          .then(({stdout}) => stdout.trim())
+          .catch(error => error);
+      return {hostname, version, port};
+    },
+    instanceIds: () => clientIds,
   },
   Mutation: {
-    play: async (root, {stationId}, {radioClient}) => {
-      throwError(await radioClient.sendPlayStation(stationId));
-      return throwError(await radioClient.getStatus());
+    play: async (root, {mpdInstance, stationId}, {stationList}) => {
+      const radioClient = getRadioClient(mpdInstance);
+      return radioClient.sendPlayStation(stationList.getStationById(stationId))
+        //.catch(error => error)
+        .then(() => radioClient.getStatus())
     },
-    stop: async (root, args, {radioClient}) => {
-      throwError(await radioClient.sendPause());
-      return throwError(await radioClient.getStatus());
+
+    stop: async (root, {mpdInstance}) => {
+      const radioClient = getRadioClient(mpdInstance);
+      return radioClient.sendPause()
+        //.catch(error => error)
+        .then(() => radioClient.getStatus())
     },
-    addStation: (parent, {input}, {radioClient}) => 
-      radioClient.createStation(input),
-    setVolume: async (parent, {input}, {radioClient}) => {
-      await throwError(radioClient.sendVolume(input));
-      return input;
+
+    setVolume: async (parent, {mpdInstance, input}) => {
+      const radioClient = getRadioClient(mpdInstance);
+      return radioClient.sendVolume(input)
+        //.catch(error => error)
+        .then(() => ({volume: input}))
     },
   },
   Subscription: {
     statusChanged: {
-      resolve: (payload: RadioStatus) => payload,
-      subscribe: async (root, args, {radioClient}): Promise<AsyncIterable<RadioStatus>> =>
-        radioClient.radioStatusAsyncIterable(),
+      resolve: obj => obj,
+      subscribe: async (root, {mpdInstance}): Promise<AsyncIterable<StatusChangedEvent>> => {
+        const radioClient = getRadioClient(mpdInstance);
+        async function* it(): AsyncGenerator<StatusChangedEvent> {
+          // Seems like if any field contains an Error object, Apollo
+          // sends an error response.
+          for await (const i of await radioClient.radioStatusAsyncIterable()) {
+            yield {
+              error: i instanceof Error ? {message: i.message} : undefined,
+              status: i instanceof Error ? undefined : i as /*
+                  Graphql-codegen thinks that this needs to be a fully resolved type,
+                  but in actuality Apollo Server runs the RadioStatus through the
+                  Status resolver.
+                */ any as Status,
+            };
+          }
+        }
+        return {[Symbol.asyncIterator]: it}
+      }
     },
   },
 };

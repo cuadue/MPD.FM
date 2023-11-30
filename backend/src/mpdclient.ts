@@ -7,19 +7,21 @@ const defaultConnectOpts: ConnectOptions = {
   port: 6600
 };
 
-export type State = Error | 'connecting' | 'ready';
+export type State = 'connecting' | 'ready';
 
 interface MpdClientEvents {
   ready: () => void;
-  stateChanged: (state: State) => void;
+  stateChanged: (state: State | Error) => void;
   subsystemsChanged: (names: Array<string>) => void;
 }
 
 type MessageHandler = {
+  debugInfo: string
   // Used in order to tell if the *previous* command was an idle command,
   // in which case, a noidle command will need to be sent.
   isIdle: boolean
-  resolve: (response: string | Error) => any
+  resolve: (response: string) => any
+  reject: (error: Error) => any
 };
 
 export type Command = string | [string, ...string[]];
@@ -56,7 +58,7 @@ export const parseResponse = (data: string): {responses: Array<MpdResponse>, rem
 export class MpdClient extends TypedEmitter<MpdClientEvents> {
   private buffer: string = '';
   private msgHandlerQueue: Array<MessageHandler> = [];
-  private socket?: net.Socket = null;
+  private socket?: net.Socket | null = null;
   private reconnecting = false;
   private version?: string;
 
@@ -85,14 +87,18 @@ export class MpdClient extends TypedEmitter<MpdClientEvents> {
     if (this.reconnecting) {
       return;
     }
-    this.msgHandlerQueue.map(({resolve}) => resolve(err));
+    console.log('socket error', err);
+    this.msgHandlerQueue.map(h => {
+      console.log('rejecting', h.debugInfo);
+      h.reject(err);
+    });
     this.msgHandlerQueue = [];
     this.reconnecting = true;
     if (this.socket) {
       this.socket.destroy();
       this.socket = null;
     }
-    setTimeout(() => this.connect(options), 1000);
+    setTimeout(() => this.connect(options), 5000);
 
     this.emit('stateChanged', err);
     console.log('Reconnecting because', err);
@@ -116,66 +122,80 @@ export class MpdClient extends TypedEmitter<MpdClientEvents> {
   }
 
   private handleMessage(response: string | Error) {
-    const {resolve} = this.msgHandlerQueue.shift();
-    resolve(response);
+    const handler = this.msgHandlerQueue.shift();
+    if (response instanceof Error) {
+      handler.reject(response);
+    } else {
+      handler.resolve(response);
+    }
 
     if (this.msgHandlerQueue.length === 0) {
       this.idle();
     }
   };
 
-  private idle() {
-    this.send('idle').then((response) => {
-      if (response instanceof Error) {
-        return this.emit('stateChanged', response);
-      }
-      const subsystems = response.split("\n")
-        .map(line => {
-          const m = /changed: (\w+)/.exec(line);
-          return m ? m[1] : null;
-        })
-        .filter(system => system != null);
-      if (subsystems.length > 0) {
-        this.emit('subsystemsChanged', subsystems);
-      }
-    });
+  private async idle() {
+    const response: string | Error = await this.send('idle')
+      .catch<Error>(error => error);
+
+    if (response instanceof Error) {
+        console.log('Idle errored out', response);
+        this.emit('stateChanged', response)
+        return;
+    }
+
+    const subsystems = response.split("\n")
+      .map(line => {
+        const m = /changed: (\w+)/.exec(line);
+        return m ? m[1] : null;
+      })
+      .filter(system => system != null);
+    if (subsystems.length > 0) {
+      this.emit('subsystemsChanged', subsystems);
+    }
   }
 
-  async sendCommand(command: Command): Promise<string | Error> {
+  async sendCommand(command: Command): Promise<string> {
     return this.send(serializeCommand(command));
   };
 
-  async sendCommands(commandList: Array<Command>): Promise<string | Error> {
+  async sendCommands(commandList: Array<Command>): Promise<string> {
     return this.sendCommand(
       ["command_list_begin",
       ...commandList.map(serializeCommand),
       "command_list_end"].join('\n'));
   };
 
-  private async send(data: string): Promise<string | Error> {
-    return new Promise((resolve) => {
+  private async send(data: string): Promise<string> {
+    data = data.trim() + '\n';
+    const logData = data.replace(/\n/g, '\\n');
+
+    var that = this;
+    return new Promise(function mpdClientSendPromise(resolve, reject) {
       data = data.trim();
       const isIdle = data === 'idle';
 
-      if (this.reconnecting) {
-        return Promise.resolve(new Error('Not connected'));
+      if (that.reconnecting || !that.socket) {
+        return reject(new Error('Not connected'));
       }
-      if (this.msgHandlerQueue[0]?.isIdle) {
-        this.socket.write('noidle\n');
-      }
-      this.socket.write(data + '\n');
 
-      this.msgHandlerQueue.push({ isIdle, resolve });
+      if (that.msgHandlerQueue[0]?.isIdle) {
+        that.socket.write('noidle\n');
+      }
+      that.socket.write(data + '\n');
+
+      that.msgHandlerQueue.push({ isIdle, resolve, reject, debugInfo: logData });
+
       if (!isIdle) {
-        const err = new Error('Timed out: command ' + data);
-        setTimeout(() => resolve(err), 1000);
+        setTimeout(
+          () => reject(new Error('Timed out: command ' + logData))
+        , 10000);
       }
     });
   };
 
-  async getPlaylistInfo(): Promise<KeyValuePairs | Error> {
+  async getPlaylistInfo(): Promise<KeyValuePairs> {
     const msg = await this.sendCommand('playlistinfo');
-    if (msg instanceof Error) return msg;
     return parseKeyValueMessage(msg);
   }
 
@@ -186,7 +206,7 @@ export class MpdClient extends TypedEmitter<MpdClientEvents> {
 
 function argEscape(arg: string){
   // replace all " with \"
-  return '"' + arg.toString().replace(/"/g, '\\"') + '"';
+  return '"' + arg.replace(/"/g, '\\"') + '"';
 }
 
 function serializeCommand(command: Command): string {
@@ -206,7 +226,8 @@ export function parseKeyValueMessage(msg: string): KeyValuePairs {
     }
     var keyValue = p.match(/([^ ]+): (.*)/);
     if (keyValue == null) {
-      throw new Error('Could not parse entry "' + p + '"')
+      console.log('Could not parse entry "' + p + '"')
+      return;
     }
     result[keyValue[1]] = keyValue[2];
   });
@@ -214,7 +235,7 @@ export function parseKeyValueMessage(msg: string): KeyValuePairs {
 }
 
 export function parseArrayMessage(msg: string): Array<KeyValuePairs> {
-  var results = [];
+  var results: Array<KeyValuePairs> = [];
   var obj = {};
 
   msg.split('\n').forEach(function(p) {

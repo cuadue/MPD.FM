@@ -1,30 +1,31 @@
-import { ApolloClient, InMemoryCache, Operation, createHttpLink, split } from '@apollo/client';
-import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
-import { RetryLink } from '@apollo/client/link/retry';
-import { getMainDefinition } from '@apollo/client/utilities';
-import { Kind, OperationTypeNode } from 'graphql';
-import {createClient as createWsClient} from 'graphql-ws';
+import {Client, cacheExchange, fetchExchange, subscriptionExchange} from 'urql';
+import { createClient as createWsClient } from 'graphql-ws';
 
-const httpLink = createHttpLink({
-  uri: window.location.origin + '/graphql',
+const {port, protocol, hostname, pathname} = window.location;
+const graphqlPathname = `${pathname}/graphql`.replace(/^\/+/, '');
+
+const graphqlWsUri = `ws://${hostname}:${port}/${graphqlPathname}`;
+const graphqlHttpUri = `${protocol}//${hostname}:${port}/${graphqlPathname}`;
+
+const wsClient = createWsClient({
+    url: graphqlWsUri
 });
 
-const wsLink = new GraphQLWsLink(createWsClient({
-    url: `ws://${window.location.host}/graphql`,
-}));
-
-const isSubscription = (op: Operation): boolean => {
-    const definition = getMainDefinition(op.query);
-    return definition.kind === Kind.OPERATION_DEFINITION &&
-           definition.operation === OperationTypeNode.SUBSCRIPTION;
-}
-
-export const apolloClient = new ApolloClient({
-    link: new RetryLink({
-        attempts: {
-            max: Infinity,
-            retryIf: () => navigator.onLine
-        }
-    }).split(isSubscription, wsLink, httpLink),
-    cache: new InMemoryCache(),
+export const client = new Client({
+    url: graphqlHttpUri,
+    exchanges: [
+        cacheExchange,
+        fetchExchange,
+        subscriptionExchange({
+            forwardSubscription(request) {
+                const input = { ...request, query: request.query || '' };
+                return {
+                    subscribe(sink) {
+                        const unsubscribe = wsClient.subscribe(input, sink);
+                        return { unsubscribe };
+                    }
+                }
+            }
+        })
+    ]
 });

@@ -3,14 +3,8 @@
     column-count: auto;
     overflow-y: auto;
     display: grid;
-    /*
-    --b: #b5ac9a99;
-    --c: 4px;
-    --d: 8px;
-    background: repeating-linear-gradient(-33deg,
-        var(--a), var(--a) var(--c),
-        var(--b) var(--c), var(--b) var(--d));
-        */
+    max-width: 80rem;
+    margin: 0 auto;
 }
 
 @media (min-width: 30em) {
@@ -27,30 +21,21 @@
 }
 
 .station {
-    border: 2px solid black;
-    box-shadow: 4px 4px black;
     padding: 10px;
     margin: 5px 9px 5px 5px;
-    background-color: white;
-    color: #333;
     display: flex;
     break-inside: avoid;
     break-after: avoid;
-    position: relative;
-}
-
-.station:after {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 5%);
-    content: '';
-}
-
-.station:hover {
     cursor: pointer;
+    border: 2px solid;
+    box-shadow: 2px 2px 0px black;
+}
+
+.error {
+    background: #fcc;
+    border-color: #a33;
+    color: #a33;
+    box-shadow: 2px 2px 0 #c66;
 }
 
 .logo {

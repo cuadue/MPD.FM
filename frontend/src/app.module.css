@@ -1,6 +1,6 @@
 :root {
-    --header-height: min(35vh, max(16rem, min(24rem, 25vh)));
-    --shadow: 2px;
+  --header-height: 15rem;
+  --shadow: 2px;
 }
 
 html, body {
@@ -8,16 +8,13 @@ html, body {
     padding: 0;
     font-family: sans-serif;
     font-size: 10pt;
-    background: #b5ac9a;
 }
 
 .root {
-    max-width: 80rem;
-    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    position: relative;
-    padding-bottom: env(safe-area-inset-bottom, 0);
+    min-height: 100vh;
+    width: 100%;
 }
 
 .root:before {
@@ -30,16 +27,14 @@ html, body {
     padding: 0;
     height: 1000px;
     background: black;
-    z-index: 100;
-}
-
-.root:before {
+    z-index: 10;
     transform: translate(0, calc(-1000px + (var(--shadow) + var(--header-height))));
 }
 
 .header {
+    padding-top: env(safe-area-inset-top, 0);
     height: var(--header-height);
-    z-index: 1000;
+    z-index: 20;
     position: fixed;
     top: 0;
     left: 0;
@@ -52,5 +47,15 @@ html, body {
 }
 
 .content {
-    margin-top: var(--header-height);
+    flex: 1 0;
+    padding-top: var(--header-height);
+}
+
+.footer {
+    flex: 0 0;
+    color: white;
+    background-color: black;
+    text-align: center;
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
 }

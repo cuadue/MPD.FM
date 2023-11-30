@@ -1,0 +1,75 @@
+.slider {
+  display: flex;
+  flex-grow: 1;
+  height: 100%;
+  align-items: center;
+  padding: 0 1rem;
+  cursor: pointer;
+}
+
+.trackContainer {
+  display: flex;
+  flex-grow: 1;
+  height: 100%;
+  touch-action: none;
+  position: relative;
+  align-items: center;
+}
+
+.trackLeft {
+  background: rgb(180, 83, 9);
+  border: 2px solid #ccc;
+  border-top-left-radius: 9999px;
+  border-bottom-left-radius: 9999px;
+  user-select: none;
+  height: 1.5rem;
+}
+
+.handle {
+  height: 100%;
+  width: 6rem;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: ew-resize;
+}
+
+.sliderImage {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  user-select: none;
+  pointer-events: none;
+  background: #ddd;
+}
+
+.sliderTracking {
+  background: rgb(165, 243, 352);
+}
+
+.trackRight {
+  background: transparent;
+  border: 2px solid #ccc;
+  border-top-right-radius: 9999px;
+  border-bottom-right-radius: 9999px;
+  height: 1rem;
+}
+
+.tooltip {
+  width: 3rem;
+  height: 3rem;
+  border-radius: .375rem;
+  background: rgb(217 119 6);
+  color: white;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  z-index: 50;
+  transform: translate(-50%, -100%);
+}

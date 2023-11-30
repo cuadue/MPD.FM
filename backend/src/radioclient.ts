@@ -2,17 +2,13 @@ import {
     MpdClient,
     ConnectOptions,
     parseKeyValueMessage,
-    State,
-    KeyValuePairs,
+    State as MpdState,
 } from './mpdclient.js';
 import {TypedEmitter} from 'tiny-typed-emitter';
-import {StationList, StationEntity, StationMetadata} from './stationlist.js'
+import {StationEntity} from './stationlist.js'
 import equal from 'fast-deep-equal';
-import Debug from 'debug'
 
-var debug = Debug('mpd.fm:mpdclient');
-
-export const playStates = ['play', 'stop', 'pause'] as const;
+export const playStates = ['connecting', 'play', 'stop', 'pause'] as const;
 export type PlayState = typeof playStates[number];
 const playStateFromString = (s: string): PlayState => {
     const i = playStates.findIndex(p => p === s);
@@ -20,17 +16,15 @@ const playStateFromString = (s: string): PlayState => {
 }
 
 export type RadioStatus = {
-  radioState: State,
-  playState: PlayState | Error,
+  state: PlayState,
   volume?: number,
   title?: string
   station?: StationEntity
+  errorMessage?: string
 };
 
-export type RadioState = State;
 interface RadioClientEvents {
-    stateChanged: (state: RadioState) => void
-    statusUpdated: (status: RadioStatus) => void
+    statusUpdated: (status: RadioStatus | Error) => void
 }
 
 const arraysIntersect = <T>(needles: T[], haystack: T[]): boolean => {
@@ -39,86 +33,53 @@ const arraysIntersect = <T>(needles: T[], haystack: T[]): boolean => {
 
 export class RadioClient extends TypedEmitter<RadioClientEvents> {
     mpdClient: MpdClient = new MpdClient;
-    state: State = new Error('uninitialized');
     connectOptions?: ConnectOptions
-    stationList: StationList;
-    status?: RadioStatus;
+    status?: RadioStatus | Error;
 
-    constructor(stationList: StationList, options?: ConnectOptions) {
+    constructor(options?: ConnectOptions) {
         super();
-        this.stationList = stationList;
+        console.log('New radio client', options);
         this.connectOptions = options;
     }
 
     async connect() {
-        debug('Connecting');
-        this.setRadioState('connecting');
+        console.log('Connecting', this.connectOptions);
+        this.emit('statusUpdated', { state: 'connecting' });
 
-        this.mpdClient.on('stateChanged', state => {
-            this.setRadioState(state);
+        this.mpdClient.on('stateChanged', (state: MpdState) => {
+            if (state === 'connecting') {
+                this.emit('statusUpdated', { state });
+            } else {
+                this.updateState();
+            }
         });
 
         this.mpdClient.on('subsystemsChanged', async (subsystems: Array<string>) => {
-            if (!arraysIntersect(['playlist', 'player', 'mixer'], subsystems)) {
-                return;
-            }
-            const data = await this.getStatusRaw();
-            if (data instanceof Error) {
-                this.setRadioState(data);
-            } else {
-                this.setStatus(this.parseStatus(data));
+            if (arraysIntersect(['playlist', 'player', 'mixer'], subsystems)) {
+                this.updateState();
             }
         });
 
         return this.mpdClient.connect(this.connectOptions);
     }
 
-    private async setRadioState(newState: RadioState) {
-        const changed = newState !== this.state
-        if (changed) {
-            this.state = newState;
-            if (this.state == 'ready') {
-                const response = await this.getStatus();
-                if (response instanceof Error) {
-                    console.log('Overwriting error', this.state, 'with', response);
-                    this.state = response;
-                } else {
-                    this.emit('statusUpdated', response);
-                }
-            }
+    private async updateState() {
+        const data: RadioStatus | Error = await this.getStatus()
+            .catch(error => error);
 
-            this.emit('stateChanged', this.state);
-        }
-        return changed;
-    }
-
-    private setStatus(newStatus: RadioStatus) {
-        if (!equal(this.status, newStatus)) {
-            this.status = newStatus;
-            this.emit('statusUpdated', this.status);
+        if (!equal(data, this.status)) {
+            this.status = data;
+            this.emit('statusUpdated', data);
         }
     }
 
-    createStation(metadata: StationMetadata): StationEntity {
-        return this.stationList.createStation(metadata);
-    }
-
-    getStations(): Array<StationEntity> {
-        return this.stationList.getStations();
-    }
-
-    async sendPlayStation(stationId: string): Promise<null | Error>{
-        const station = this.stationList.getStationById(stationId);
-        if (!station) {
-            throw new Error(`No such station with id ${stationId}`);
-        }
-        const result = await this.mpdClient.sendCommands([
+    async sendPlayStation(station: StationEntity): Promise<null>{
+        return this.mpdClient.sendCommands([
             "clear",
             ["repeat", '1'],
             ["add", station.streamUrl],
             "play",
-        ]);
-        return (result instanceof Error) ? result : null;
+        ]).then(() => null);
     }
 
     async sendVolume(volume: number) {
@@ -133,64 +94,58 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         return this.mpdClient.sendCommand(['pause', '1']);
     }
 
-    private async getStatusRaw(): Promise<KeyValuePairs | Error> {
+    async getStatus(): Promise<RadioStatus> {
         const msg = await this.mpdClient.sendCommands(['status', 'currentsong']);
-        return (msg instanceof Error) ? msg : parseKeyValueMessage(msg);
-    }
-
-    private parseStatus(data: KeyValuePairs): RadioStatus {
-        const playState = data.error ?
-            new Error(data.error) :
-            playStateFromString(data.state);
+        const data = parseKeyValueMessage(msg);
+        if (data instanceof Error) {
+            console.log('getStatus parsing not good', data);
+            return Promise.reject(data);
+        }
+        const volume = Number.parseInt(data.volume);
         return {
-            radioState: this.state,
-            playState,
-            volume: Number.parseInt(data.volume) || undefined,
-            station: this.stationList.getStationByUrl(data.file) || {
+            state: playStateFromString(data.state),
+            volume: isFinite(volume) ? volume : undefined,
+            station: {
                 streamUrl: data.file
             },
             title: data.Title || data.title,
+            errorMessage: data.error,
         };
     }
 
-    async getStatus(): Promise<RadioStatus | Error> {
-        const data = await this.getStatusRaw();
-        return (data instanceof Error) ? data : this.parseStatus(data);
-    }
+    async radioStatusAsyncIterable(): Promise<AsyncIterable<RadioStatus | Error>> {
+        var resolve: null | ((status: RadioStatus | Error) => void);
 
-    async radioStatusAsyncIterable(): Promise<AsyncIterable<RadioStatus>> {
-        var resolve: null | ((status: RadioStatus) => void);
-
-        const toRadioStatus = (x: RadioStatus | Error): RadioStatus =>
-            (x instanceof Error) ? {radioState: x, playState: x} : x;
-
-        const listener = (status: RadioStatus | Error) =>
-            resolve && resolve(toRadioStatus(status));
+        const listener = (status: RadioStatus | Error) => {
+            resolve && resolve(status);
+        };
 
         this.on('statusUpdated', listener);
         const cleanup = () => this.off('statusUpdated', listener);
 
-        const initial = await this.getStatus();
+        const initial = await this.getStatus()
+            .catch(error => error);
 
         async function* it() {
             try {
-                yield toRadioStatus(initial);
+                yield initial;
                 while (true) {
-                    yield await new Promise<RadioStatus>(res => resolve = res);
+                    yield await new Promise<RadioStatus | Error>(
+                            res => resolve = res
+                        ).catch(error => error);
                 }
             } finally {
-                console.log('cleaning up');
                 cleanup();
             }
         } 
         return {[Symbol.asyncIterator]: it}
     }
 
-    getVersion(): string | null {
+    getVersion(): string | undefined {
         return this.mpdClient.getVersion();
     }
 
-    getConnectOptions(): ConnectOptions | null {
+    getConnectOptions(): ConnectOptions | undefined {
         return this.connectOptions;
     }
 };

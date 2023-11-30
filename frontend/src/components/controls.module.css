@@ -7,13 +7,13 @@
 }
 
 .upper {
-    flex: 1 1 75%;
     background-color: white;
     overflow: hidden;
     font-size: 14pt;
     place-items: center center;
 
     display: flex;
+    flex-grow: 1;
     align-items: center;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
@@ -83,8 +83,8 @@
 }
 
 .lower {
-    flex: 0 2 4em;
-    gap: 2em;
+    gap: 2rem;
+    flex: 0 0 4rem;
 
     width: auto;
     display: flex;
