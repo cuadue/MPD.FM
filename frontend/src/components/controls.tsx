@@ -23,15 +23,15 @@ const Logo: React.FC<{
         : <></>
 
 const ActionButton: React.FC<{
-    status?: Status | null
+    status: Status
 }> = ({status}) => {
-    const {play, stop, loading, error} = usePlayControls(status?.station?.id ?? undefined);
-    if (error) {
+    const {play, stop, loading} = usePlayControls(status?.station?.id ?? undefined);
+    const className = `${style.actionButton} ${loading ? 'loading' : ''}`;
+    if (!status) {
+        return <></>
     }
 
-    const className = `${style.actionButton} ${loading ? 'loading' : ''}`;
-
-    switch (status?.state) {
+    switch (status.state) {
     case State.Connecting:
         return <img className={className} src={loadingImage} alt='Connecting' />;
     case State.Paused:
@@ -45,11 +45,8 @@ const ActionButton: React.FC<{
     }
 }
 
-const useStatusText = (status?: Status | null, error?: string | null): string => {
+const useStatusText = (status?: Status | null): string => {
     const ctx = useContext(GlobalContext);
-    if (error) {
-        return `Error: ${error}`;
-    }
     if (status?.errorMessage) {
         return status?.errorMessage;
     }
@@ -69,9 +66,9 @@ const useStatusText = (status?: Status | null, error?: string | null): string =>
 
 const StatusDescription: React.FC<{
     description: string
-    isError: boolean
-}> = ({description, isError}) => {
-    return <div className={`${style.statusMessage} ${isError ? style.error : ''}`}>
+}> = ({description}) => {
+    const ctx = useContext(GlobalContext);
+    return <div className={`${style.statusMessage} ${ctx.error ? style.error : ''}`}>
         {description}
     </div>
 }
@@ -88,10 +85,8 @@ const stateEmoji = (state: State) => {
 
 export const Controls: React.FC<{
     status: FullStatusFragment | null
-    error: MyError | null
-}> = ({status, error}) => {
-    const statusText = useStatusText(status, error?.message);
-    console.log({status});
+}> = ({status}) => {
+    const statusText = useStatusText(status);
 
     if (status && typeof document !== typeof undefined) {
         const emoji = stateEmoji(status.state);
@@ -107,15 +102,13 @@ export const Controls: React.FC<{
             <div className={style.begin}>
                 <Logo station={status?.station} />
             </div>
-            {statusText &&
-                <div className={style.middle}>
-                    <StatusDescription description={statusText} isError={!!error} />
-                </div>
-            }
+            <div className={style.middle}>
+                <StatusDescription description={statusText} />
+            </div>
         </div>
         <div className={style.lower}>
-            <ActionButton status={status} />
-            <VolumeSlider value={status?.volume ?? NaN} />
+            {status ? <ActionButton status={status} /> : <></>}
+            {status ? <VolumeSlider value={status.volume} /> : <></>}
         </div>
     </div>
 };

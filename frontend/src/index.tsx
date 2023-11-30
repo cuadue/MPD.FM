@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import ReactDOM from 'react-dom/client';
 import { Provider as UrqlProvider, useQuery } from 'urql';
@@ -9,34 +9,16 @@ import { Controls } from './components/controls';
 import style from './app.module.css'
 import { useStatusSubscription } from './graphql/hooks';
 import { mpdBackendQuery } from './graphql/queries';
-
-export const GlobalContext = React.createContext<{
-    error: string | null
-    setError: (e: string | null) => void
-}>({
-    error: null,
-    setError: function () {},
-});
-
-export const INSTANCE = {id: 'livingroom'};
-
-export const Providers: React.FC<{
-  children: React.ReactNode
-}> = ({children}) => {
-    const [globalError, setGlobalError] = useState<string | null>(null);
-    return <GlobalContext.Provider value={{
-        error: globalError,
-        setError: setGlobalError
-    }}>
-      {children}
-    </GlobalContext.Provider>
-}
+import { GlobalContext, Providers } from './graphql/providers';
 
 const Footer: React.FC = () => {
+    const ctx = useContext(GlobalContext);
+
     const [result, ]  = useQuery({
       query: mpdBackendQuery,
-      variables: {instance: INSTANCE}
+      variables: {instance: {id: ctx.instanceId}}
     });
+
     const {data, fetching, error} = result;
 
     return <footer className={style.footer}>
@@ -52,15 +34,37 @@ const Footer: React.FC = () => {
     </footer>
 }
 
+const InstancePicker: React.FC = () => {
+    const ctx = useContext(GlobalContext);
+
+    return <div className={style.instances}>
+        {ctx.instanceIds.map(id =>
+            <span
+                className={[
+                    style.instance,
+                    ctx.instanceId === id ? style.active : ''
+                ].join(' ')}
+                onClick={() => ctx.setInstanceId(id)}
+            >
+                {id}
+            </span>
+        )}
+    </div>
+}
+
 export const App: React.FC = () => {
-    const {error, status} = useStatusSubscription();
+    const {status, fetching} = useStatusSubscription();
+    if (fetching) {
+        return 'Loading...';
+    }
 
     return <div className={[
             style.root,
             style.narrow,
         ].join(' ')}>
         <header id='app-header' className={style.header}>
-            <Controls error={error} status={status} />
+            <InstancePicker />
+            <Controls status={status} />
         </header>
         <main className={style.content}>
             <StationList status={status} />
@@ -70,9 +74,11 @@ export const App: React.FC = () => {
 };
  
 ReactDOM.createRoot(document.body).render(
-  <React.StrictMode>
-    <UrqlProvider value={client}>
-      <App />
-    </UrqlProvider>
-  </React.StrictMode>
+    <React.StrictMode>
+        <UrqlProvider value={client}>
+            <Providers>
+                <App />
+            </Providers>
+        </UrqlProvider>
+    </React.StrictMode>
 );

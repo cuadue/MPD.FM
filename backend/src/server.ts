@@ -67,9 +67,11 @@ const graphqlApp = async () => {
       ApolloServerPluginDrainHttpServer({ httpServer }),
 
       // Proper shutdown for the WebSocket server.
-      {async serverWillStart() {
+      {
+        async serverWillStart() {
           return { async drainServer() { await serverCleanup.dispose(); } };
-      }},
+        }
+      },
     ],
   });
 

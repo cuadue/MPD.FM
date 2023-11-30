@@ -1,5 +1,5 @@
 :root {
-  --header-height: 15rem;
+  --header-height: 17rem;
   --shadow: 2px;
 }
 
@@ -58,4 +58,27 @@ html, body {
     text-align: center;
     padding: 1rem;
     padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
+}
+
+.instances {
+    display: flex;
+    background: black;
+    color: #ccc;
+}
+
+.instance {
+    flex: 1 1;
+    text-align: center;
+    padding: 1rem;
+    cursor: pointer;
+}
+
+.instance:hover {
+    background: #555;
+}
+
+.instance.active {
+    background: white;
+    color: black;
+    font-weight: bold;
 }

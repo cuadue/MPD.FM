@@ -78,6 +78,7 @@ export const resolvers: Resolvers = {
     statusChanged: {
       resolve: obj => obj,
       subscribe: async (root, {mpdInstance}): Promise<AsyncIterable<StatusChangedEvent>> => {
+        console.log('New sub');
         const radioClient = getRadioClient(mpdInstance);
         async function* it(): AsyncGenerator<StatusChangedEvent> {
           // Seems like if any field contains an Error object, Apollo
