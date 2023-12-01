@@ -16,6 +16,8 @@ export default defineConfig({
     plugins: [
         react(),
         faviconsPlugin({
+            appName: 'MPD.FM',
+            theme_color: 'black',
             icons: {
                 favicons: { source: ICON_PATH },
                 android: { source: ICON_PATH },
