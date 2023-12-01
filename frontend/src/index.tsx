@@ -37,6 +37,9 @@ const Footer: React.FC = () => {
 const InstancePicker: React.FC = () => {
     const ctx = useContext(GlobalContext);
 
+    if (ctx.instanceIds?.length < 2) {
+        return <></>
+    }
     return <div className={style.instances}>
         {ctx.instanceIds.map(id =>
             <span
