@@ -1,0 +1,14 @@
+#!/bin/bash
+set -eux
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+apt install -y nginx mpd
+
+mkdir -p /etc/nginx
+cp nginx.conf /etc/nginx
+systemctl restart --now nginx.service
+
+cd service
+cp *.service /etc/systemd/system
+systemctl enable --now *.service
