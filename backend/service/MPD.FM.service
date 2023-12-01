@@ -3,8 +3,8 @@ Description=MPD.FM
 After=mpd.service
 
 [Service]
-WorkingDirectory=/home/srv-mpd-fm/MPD.FM
-ExecStart=/usr/bin/node backend/dist/server.js
+WorkingDirectory=/home/srv-mpd-fm/mpd-fm/backend
+ExecStart=/usr/bin/node dist/server.js
 Restart=always
 StandardOutput=journal+console
 StandardError=journal+console
