@@ -53,7 +53,8 @@ const InstancePicker: React.FC = () => {
 }
 
 export const App: React.FC = () => {
-    const {status, fetching} = useStatusSubscription();
+    const ctx = useContext(GlobalContext);
+    const {status, fetching} = useStatusSubscription(ctx.instanceId);
     if (fetching) {
         return 'Loading...';
     }

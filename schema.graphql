@@ -64,8 +64,9 @@ type Mutation {
 type StatusChangedEvent {
   status: Status
   error: MyError
+  mpdInstance: String!
 }
 
 type Subscription {
-  statusChanged(mpdInstance: MpdInstance!): StatusChangedEvent!
+  statusChanged: StatusChangedEvent!
 }

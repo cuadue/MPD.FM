@@ -1,6 +1,6 @@
-import { useMutation, useSubscription } from 'urql';
+import { SubscriptionHandler, useMutation, useSubscription } from 'urql';
 import { playMutation, setVolumeMutation, statusSubscription, stopMutation } from './queries';
-import { FullStatusFragment, MyError } from '../generated/graphql';
+import { FullStatusFragment, MyError, StatusSubscriptionSubscription } from '../generated/graphql';
 import { useEffect, useState, useContext } from 'react';
 import { GlobalContext } from './providers';
 
@@ -30,13 +30,19 @@ export const usePlayControls = (stationId?: string) => {
   };
 }
 
-export const useStatusSubscription = () => {
+export const useStatusSubscription = (id: string) => {
   const [status, setStatus] = useState<FullStatusFragment | null>(null);
   const ctx = useContext(GlobalContext);
-  const [result, ]= useSubscription({
+  type StatusMap = Record<string, {status?: FullStatusFragment, error?: string}>;
+  const [result, ] = useSubscription<StatusSubscriptionSubscription, StatusMap>({
     query: statusSubscription,
-    variables: {instance: {id: ctx.instanceId}}
-  });
+  }, (prev = {}, {statusChanged}) => ({
+    ...prev,
+    [statusChanged.mpdInstance]: {
+      status: statusChanged.status,
+      error: statusChanged.error?.message,
+    }
+  }));
 
   const {fetching, error: subError, data} = result;
 
@@ -44,21 +50,22 @@ export const useStatusSubscription = () => {
     if (fetching) {
       return;
     }
+    const instanceData = data[id];
     if (subError?.message) {
       setStatus(null);
       ctx.setError(subError.message);
-    } else if (data) {
-      if (data.statusChanged.error) {
+    } else if (instanceData) {
+      if (instanceData.error) {
         setStatus(null);
-        ctx.setError(data.statusChanged.error.message);
-      } else if (data.statusChanged.status) {
+        ctx.setError(instanceData.error);
+      } else if (instanceData.status) {
         ctx.setError(null);
-        setStatus(data.statusChanged.status);
+        setStatus(instanceData.status);
       } else {
-        console.log('what do with', data);
+        console.log('what do with', instanceData);
       }
     }
-  }, [fetching, subError, data]);
+  }, [fetching, subError, data, id]);
 
   return {status, fetching};
 }

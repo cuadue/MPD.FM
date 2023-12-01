@@ -9,7 +9,7 @@
       "declaration": true,
       "sourceMap": true,
       "esModuleInterop": true,
-      "lib": ["ESNext.AsyncIterable"]
+      "lib": ["ESNext.AsyncIterable", "ES2021"]
     },
     "ts-node": {
       "esm": true,

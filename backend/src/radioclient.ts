@@ -35,6 +35,7 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
     mpdClient: MpdClient = new MpdClient;
     connectOptions?: ConnectOptions
     status?: RadioStatus | Error;
+    statusResolvers: Array<(result: RadioStatus | Error) => void> = [];
 
     constructor(options?: ConnectOptions) {
         super();
@@ -44,11 +45,11 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
 
     async connect() {
         console.log('Connecting', this.connectOptions);
-        this.emit('statusUpdated', { state: 'connecting' });
+        this.notifyStatus({ state: 'connecting' });
 
         this.mpdClient.on('stateChanged', (state: MpdState) => {
             if (state === 'connecting') {
-                this.emit('statusUpdated', { state });
+                this.notifyStatus({ state });
             } else {
                 this.updateState();
             }
@@ -69,8 +70,13 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
 
         if (!equal(data, this.status)) {
             this.status = data;
-            this.emit('statusUpdated', data);
+            this.notifyStatus(data);
         }
+    }
+
+    private notifyStatus(status: RadioStatus | Error) {
+        this.statusResolvers.forEach(resolve => resolve(status));
+        this.statusResolvers = [];
     }
 
     async sendPlayStation(station: StationEntity): Promise<null>{
@@ -113,32 +119,11 @@ export class RadioClient extends TypedEmitter<RadioClientEvents> {
         };
     }
 
-    async radioStatusAsyncIterable(): Promise<AsyncIterable<RadioStatus | Error>> {
-        var resolve: null | ((status: RadioStatus | Error) => void);
-
-        const listener = (status: RadioStatus | Error) => {
-            resolve && resolve(status);
-        };
-
-        this.on('statusUpdated', listener);
-        const cleanup = () => this.off('statusUpdated', listener);
-
-        const initial = await this.getStatus()
-            .catch(error => error);
-
-        async function* it() {
-            try {
-                yield initial;
-                while (true) {
-                    yield await new Promise<RadioStatus | Error>(
-                            res => resolve = res
-                        ).catch(error => error);
-                }
-            } finally {
-                cleanup();
-            }
-        } 
-        return {[Symbol.asyncIterator]: it}
+    async nextRadioStatus(): Promise<RadioStatus | Error> {
+        const that = this;
+        return new Promise(resolve => {
+            that.statusResolvers.push(resolve);
+        });
     }
 
     getVersion(): string | undefined {

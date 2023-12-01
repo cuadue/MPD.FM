@@ -61,14 +61,15 @@ export const setVolumeMutation = graphql(`
 `);
 
 export const statusSubscription = graphql(`
-  subscription StatusSubscription($instance: MpdInstance!) {
-    statusChanged(mpdInstance: $instance) {
+  subscription StatusSubscription {
+    statusChanged {
       status {
         ...FullStatus
       }
       error {
         message
       }
+      mpdInstance
     }
   }
 `);

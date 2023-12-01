@@ -44,7 +44,7 @@ export const clientIds: string[] = allClients.map(c => c[0]);
 export const radioClients = Object.fromEntries(allClients);
 
 const graphqlApp = async () => {
-  const typeDefs = await readFile('schema.graphql', 'utf8');
+  const typeDefs = await readFile('../schema.graphql', 'utf8');
   const schema = makeExecutableSchema({typeDefs, resolvers});
 
   const app = express();
@@ -87,7 +87,7 @@ const graphqlApp = async () => {
     ),
   ]);
 
-  app.use('/', cors(), express.static('frontend/dist'));
+  app.use('/', cors(), express.static('../frontend/dist'));
   app.use('/graphql', cors(), bodyParser.json(),
           apolloMiddleware(apolloServer, { context: getContext }));
   app.use(imageCache.urlPrefix, cors(), express.static(imageCache.storagePath));

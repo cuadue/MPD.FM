@@ -77,21 +77,31 @@ export const resolvers: Resolvers = {
   Subscription: {
     statusChanged: {
       resolve: obj => obj,
-      subscribe: async (root, {mpdInstance}): Promise<AsyncIterable<StatusChangedEvent>> => {
-        console.log('New sub');
-        const radioClient = getRadioClient(mpdInstance);
+      subscribe: async (): Promise<AsyncIterable<StatusChangedEvent>> => {
+        const makeEvent = ({id, status} : {id: string, status: RadioStatus | Error}): StatusChangedEvent => ({
+          error: status instanceof Error ? {message: status.message} : undefined,
+          status: status instanceof Error ? undefined : status as /*
+              Graphql-codegen thinks that this needs to be a fully resolved type,
+              but in actuality Apollo Server runs the RadioStatus through the
+              Status resolver.
+            */ any as Status,
+          mpdInstance: id
+        })
+
+        const entries = Object.entries(radioClients);
+        const initialValues = await Promise.all(entries.map(([id, c]) =>
+          c.getStatus().then(status => ({id, status}))
+        ));
+
         async function* it(): AsyncGenerator<StatusChangedEvent> {
-          // Seems like if any field contains an Error object, Apollo
-          // sends an error response.
-          for await (const i of await radioClient.radioStatusAsyncIterable()) {
-            yield {
-              error: i instanceof Error ? {message: i.message} : undefined,
-              status: i instanceof Error ? undefined : i as /*
-                  Graphql-codegen thinks that this needs to be a fully resolved type,
-                  but in actuality Apollo Server runs the RadioStatus through the
-                  Status resolver.
-                */ any as Status,
-            };
+          for (const v of initialValues) {
+            yield makeEvent(v);
+          }
+
+          while (true) {
+            yield makeEvent(await Promise.any(entries.map(
+              ([id, c]) => c.nextRadioStatus().then(status => ({id, status})) 
+            )));
           }
         }
         return {[Symbol.asyncIterator]: it}
