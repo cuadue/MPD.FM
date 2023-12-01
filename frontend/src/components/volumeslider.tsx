@@ -62,11 +62,8 @@ export const VolumeSlider: React.FC<{
     });
     const trackRef = useRef<HTMLDivElement>(null);
     const sliderRef = useRef<HTMLDivElement>(null);
-    const {volume, setVolume, loading, error} = useVolumeControl(actualVolume);
+    const {volume, setVolume, loading} = useVolumeControl(actualVolume);
     const slowLoading = useAfterDelay(loading, 1000);
-    if (error) {
-        console.log('volume slider error', error);
-    }
 
     const newValue = calcNewValue(volume, state);
     const tracking = isFinite(newValue);

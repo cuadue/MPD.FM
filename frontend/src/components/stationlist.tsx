@@ -13,14 +13,13 @@ const Station: React.FC<{
 }> = ({station, activeStation, nowPlaying}) => {
     const {id, description, logoUrl, name} = station;
 
-    const {loading, error, play, stop} = usePlayControls(id || undefined);
+    const {play, stop} = usePlayControls(id || undefined);
     const handleClick: MouseEventHandler = useCallback(
         () => nowPlaying ? stop() : play(),
         [nowPlaying, play, stop]
     );
 
     return <div className={[
-            error ? style.error : '',
             style.station,
             activeStation ? style.activeStation : '',
         ].join(' ')} onClick={handleClick}>
@@ -34,11 +33,7 @@ const Station: React.FC<{
         </div>
         <div className={style.details}>
             <div className={style.title}>{name}</div>
-            <div>{
-                error
-                ? <><strong title={error.message}>Error!</strong></>
-                : description
-            }</div>
+            <div>{description}</div>
         </div>
     </div>
 };
