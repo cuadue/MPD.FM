@@ -9,6 +9,6 @@ mkdir -p /etc/nginx
 cp nginx.conf /etc/nginx
 systemctl restart --now nginx.service
 
-cd service
+cd backend/service
 cp *.service /etc/systemd/system
 systemctl enable --now *.service

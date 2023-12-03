@@ -18,6 +18,10 @@ export default defineConfig({
         faviconsPlugin({
             appName: 'MPD.FM',
             theme_color: 'black',
+            appDescription: 'Internet Radio',
+            appShortName: 'MPD.FM',
+            appleStatusBarStyle: 'black-translucent',
+            start_url: '/',
             icons: {
                 favicons: { source: ICON_PATH },
                 android: { source: ICON_PATH },

@@ -89,18 +89,27 @@ export const resolvers: Resolvers = {
         })
 
         const entries = Object.entries(radioClients);
-        const initialValues = await Promise.all(entries.map(([id, c]) =>
-          c.getStatus().then(status => ({id, status}))
-        ));
+        const initialValuesPending: Record<string, boolean> = Object.fromEntries(
+          entries.map(([id, ]) => [id, true])
+        );
+
+        const initialPromises = Object.fromEntries(entries.map(([id, c]) => [
+          id,
+          c.getStatus().then(status => {
+            initialValuesPending[id] = false;
+            return {id, status};
+          }).catch(err => {
+            initialValuesPending[id] = false;
+            return {id, status: err};
+          })
+        ]));
 
         async function* it(): AsyncGenerator<StatusChangedEvent> {
-          for (const v of initialValues) {
-            yield makeEvent(v);
-          }
-
           while (true) {
-            yield makeEvent(await Promise.any(entries.map(
-              ([id, c]) => c.nextRadioStatus().then(status => ({id, status})) 
+            yield makeEvent(await Promise.race(entries.map(([id, c]) =>
+              initialValuesPending[id] ?
+                initialPromises[id] :
+                c.nextRadioStatus().then(status => ({id, status}))
             )));
           }
         }

@@ -58,31 +58,48 @@ const InstancePicker: React.FC = () => {
 export const App: React.FC = () => {
     const ctx = useContext(GlobalContext);
     const {status, fetching} = useStatusSubscription(ctx.instanceId);
-    if (fetching) {
-        return 'Loading...';
-    }
 
-    return <div className={[
+    return <div id='app' className={[
             style.root,
             style.narrow,
         ].join(' ')}>
         <header id='app-header' className={style.header}>
             <InstancePicker />
-            <Controls status={status} />
+            {fetching || !status ? 'Loading...' : <>
+                <Controls status={status} />
+            </>
+            }
         </header>
         <main className={style.content}>
-            <StationList status={status} />
+            {fetching || !status ? 'Loading...' :
+                <StationList status={status} />
+            }
         </main>
         <Footer />
     </div>
 };
- 
-ReactDOM.createRoot(document.body).render(
-    <React.StrictMode>
-        <UrqlProvider value={client}>
-            <Providers>
-                <App />
-            </Providers>
-        </UrqlProvider>
-    </React.StrictMode>
-);
+
+const render = () => {
+    ReactDOM.createRoot(document.getElementById('root')).render(
+        <React.StrictMode>
+            <UrqlProvider value={client}>
+                <Providers>
+                    <App />
+                </Providers>
+            </UrqlProvider>
+        </React.StrictMode>)
+}
+
+self.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+        if (!document.getElementById('app')) {
+            render()
+        }
+    }
+});
+
+render();
+
+window.onerror = (e, source, lineno, error) => {
+    document.getElementById('root').innerHTML = `${e}<br>${source}:${lineno}<br>${error}`;
+}

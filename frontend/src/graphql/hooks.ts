@@ -30,7 +30,10 @@ export const usePlayControls = (stationId?: string) => {
   };
 }
 
-export const useStatusSubscription = (id: string) => {
+export const useStatusSubscription = (id: string): {
+  status?: FullStatusFragment | null
+  fetching: boolean
+} => {
   const [status, setStatus] = useState<FullStatusFragment | null>(null);
   const ctx = useContext(GlobalContext);
   type StatusMap = Record<string, {status?: FullStatusFragment, error?: string}>;
@@ -47,7 +50,7 @@ export const useStatusSubscription = (id: string) => {
   const {fetching, error: subError, data} = result;
 
   useEffect(() => {
-    if (fetching) {
+    if (fetching || !data) {
       return;
     }
     const instanceData = data[id];
