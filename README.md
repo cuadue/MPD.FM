@@ -1,109 +1,65 @@
 # MPD.FM
-A MPD web server and client to listen to your favorite online radio stations.
-It's great for a Raspberry Pi home audio system.
+There are some really great radio stations all over the globe with real, live
+human DJs selecting music from unique, curated catalogs around the clock free of
+charge. This project is an app that helps you bring the singular experience of
+live radio to your Linux-based home audio system with a progressive web app so
+friends and family on your WiFi network can change stations and adjust volume
+from their own phones. It is sort of like AirPlay, except that it doesn't
+require you to keep your phone turned on, and the notifications from the
+phone stay on the phone rather than get played over the big speakers.
 
 This is a rewrite of <https://github.com/florianheinemann/MPD.FM> using
 async/await, Typescript, React, and GraphQL. Many thanks to the original
 author.
 
-## Features
-- Allows quick switching between your favorite radio stations
-- Simple and nicely designed
-- Responsive web client - ready for your phone
-- Progressive web app ("add to homescreen")
-
-<img src="https://raw.githubusercontent.com/florianheinemann/florianheinemann.github.io/master/MPD.FM.png" width=300>
-
 ## Requirements
-MPD.fm has been tested on [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) Stretch Lite. Required are:
-- Current version of [Node.js](nodejs.org)
-- Installed and configured [MPD](www.musicpd.org/)
-- [Git](https://git-scm.com/) (optional to easily keep MPD.fm up-to-date)
+- NodeJS >= 20. On Raspberry PI OS (requires `bullseye` or later) it might
+  not be available via `apt`, in which case see
+  <https://github.com/nodesource/distributions>.
+- One or more instances of [MPD](www.musicpd.org/) accessible on the network
+  (this can be `localhost`).
+
+```
+sudo apt-get update
+sudo apt-get install mpd git
+```
 
 ## Installation
-### Raspbian
-First, install NodeJS version 20: <https://github.com/nodesource/distributions>. This requires
-Raspberry Pi OS `bullseye` or later.
-
-Do the following as **root**:
 ```
-# Install MPD if not yet done - configure as needed
-# MPD.FM typically works with an out-of-the-box MPD
-apt-get update
-apt-get install mpd
-
-# Install Git if not yet done
-apt-get install git
-
-# Create a user to have the server not as root
-useradd -mrU srv-mpd-fm
-
-# Sign into the new user
-su srv-mpd-fm
+# Run the server with least privilege
+sudo useradd -mrU srv-mpd-fm
 cd /home/srv-mpd-fm
-
-# Download MPD.fm using Git
-git clone https://github.com/cuadue/MPD.FM.git
-
-# Install dependencies
-cd MPD.FM
-./setup
-
-# Back to root
-exit
+sudo su srv-mpd-fm -c '
+	git clone https://github.com/cuadue/MPD.FM.git
+	cd MPD.FM
+	./setup
+'
 
 # Copy systemd service file
-cp /home/srv-mpd-fm/MPD.FM/service/MPD.FM.service /etc/systemd/system/
+sudo cp {MPD.FM/backend/service,/etc/systemd/system}/MPD.FM.service
 
-# Ensure MPD.FM starts with boot and run
-systemctl enable MPD.FM
-systemctl start MPD.FM
-
-# Check status
-systemctl status MPD.FM
-```
-
-To update MPD.FM just do the following as root:
-```
-# Sign into the dedicated user
-su srv-mpd-fm
-cd /home/srv-mpd-fm/MPD.FM
-
-# Update
-git pull
-npm install
-
-# Back to root
-exit
-
-# Restart MPD.FM
-systemctl restart MPD.FM
-
-# Check status
-systemctl status MPD.FM
+sudo systemctl enable --now MPD.FM
 ```
 
 ## Play!
-- Point your browser to \[IP of your server\]:4200 (e.g., http://192.168.1.2:4200)
-- On iOS you can display MPD.FM app-like by pressing *Share / Add to Home Screen* in Safari
-- Several clients can use MPD.FM simultaneously
+- Point your browser to the IP address or hostname of your server
+  (e.g. `http://192.168.1.2` or `http://livingroom.local`)
+- On iOS you can add MPD.FM as a progressive web app by pressing *Share > Add to
+  Home Screen* in Safari
 
 ## Configuration
-### Basic settings
-Ports, etc. can be defined by editing the environment variables in `MPD.FM.service` (typically in /etc/systemd/system):
+One instance of MPD.FM can control multiple instances of MPD. Change the
+`MPD_INSTANCES` environment variable to a semicolon-delimited
+list of `$LABEL=$HOST:$PORT` tuples (the `$LABEL=` part is optional).
+For example, if you have a Raspberry PI in both living room and kitchen:
 ```
-# Set to log detailed debug messages
-# Environment=DEBUG=mpd.fm:*
-
-# Details of MPD server (Default: localhost:6600)
-Environment=MPD_HOST=localhost
-Environment=MPD_PORT=6600
-
-# Port to serve HTTP (the user needs special permission to serve on 80; default: 4200)
-Environment=PORT=4200
+Environment=MPD_INSTANCES="Living Room=livingroom.local:6600;Kitchen=kitchen.local:6600"
 ```
 
 ### MPD Config
+To play sound through the right interface, edit `/etc/mpd.conf`. When done, restart
+the MPD service with `systemctl restart --now mpd`.
+
 In the `audio_output` block, it's better to use the device name from `aplay -L`
 rather than `aplay -l`.  For example:
 
