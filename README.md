@@ -12,6 +12,9 @@ This is a rewrite of <https://github.com/florianheinemann/MPD.FM> using
 async/await, Typescript, React, and GraphQL. Many thanks to the original
 author.
 
+<img width="523" alt="image" src="https://github.com/cuadue/MPD.FM/assets/455847/698f24c2-63f1-497e-a516-9ea63e706764">
+
+
 ## Requirements
 - NodeJS >= 20. On Raspberry PI OS (requires `bullseye` or later) it might
   not be available via `apt`, in which case see
